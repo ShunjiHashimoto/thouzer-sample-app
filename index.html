@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script type="text/javascript" src="fixed_info.js"></script>
+    <title></title>
+    <script>
+        function load(){
+            document.title = type_and_serial;
+            document.getElementById("tas").innerHTML = type_and_serial;
+        }
+    </script>
+</head>
+<body onload="load();">
+    <h1 id="tas"></h1>
+    <hr>
+    <h2><b><a href="app/index.html">Application Folder</a></b></h2>
+    <hr>
+    <h2>Please connect to MQTT broker and set/get serial number. Sample code for MQTT API to Doog Navigation Engine(DNE). Only for development/test use.</h2>
+    <hr>
+    Doog Inc.
+</body>
+</html>

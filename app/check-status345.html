@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;touch-action:none;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Connecting...</title>
+    <script>
+        function onConnected(){
+            subscribe("0/WHISPERER/" + type_and_serial + "/io12");
+        }
+        function subscribeParse(message){
+            if(message.destinationName == "0/WHISPERER/" + type_and_serial + "/io12"){
+                const from_json = JSON.parse(message.payloadString);
+                if(from_json.level != null){
+                    document.getElementById("IO5").style.backgroundColor = (from_json.level.charAt(6) == '1')?"#FF0000":"";
+                    document.getElementById("IO4").style.backgroundColor = (from_json.level.charAt(7) == '1')?"#FFF100":"";
+                    document.getElementById("IO3").style.backgroundColor = (from_json.level.charAt(8) == '1')?"#00FF00":"";
+                }
+            }
+        }
+    </script>
+</head>
+<body style="height:100%;margin:0;" onload="tryConnectFirst();">
+<div id="status" class="area" style="height:8%;font-size:7vmin;">Connecting...</div>
+<div class="area" style="height:30%;font-size:6vmin;position:relative;border:2px solid #232323;" id="IO5"><span class="text">IO5-Red</span></div>
+<div class="area" style="height:30%;font-size:6vmin;position:relative;border:2px solid #232323;" id="IO4"><span class="text">IO4-Yellow</span></div>
+<div class="area" style="height:30%;font-size:6vmin;position:relative;border:2px solid #232323;" id="IO3"><span class="text">IO3-Green</span></div>
+</body>
+</html>

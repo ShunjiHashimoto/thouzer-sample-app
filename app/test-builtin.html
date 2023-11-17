@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Connecting...</title>
+    <script type="text/javascript" src="/fixed_info.js"></script>
+    <script type="text/javascript" src="/connection.js"></script>
+    <script type="text/javascript" src="/paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="/client_dne_lib.js"></script>
+    <script>
+        var count = 0;
+        function onInterval() {
+            count += 10000;
+            document.getElementById('count').innerHTML = count;
+            publishCmd("#sound_27");
+        }
+        function onConnected() {
+            subscribe("0/WHISPERER/" + type_and_serial + "/vel2D_REF");
+            subscribe("0/THOUZER_HW/" + type_and_serial + "/ssm/applicationRequest");
+            setInterval(onInterval, 10000);
+        }
+        function subscribeParse(message) {
+            if(message.destinationName == "0/WHISPERER/" + type_and_serial + "/vel2D_REF"){
+                const obj = JSON.parse(message.payloadString);
+                if (Math.abs(obj.w_degps) > 10) publishCmd("#sound_28");
+            }
+            if(message.destinationName == "0/THOUZER_HW/" + type_and_serial + "/ssm/applicationRequest"){
+                const obj = JSON.parse(message.payloadString);
+                if (obj.path == "#button_3")  publishCmd("#sound_29");
+            }
+            if (count == 0) {
+                publishCmd("#sound_29");
+            }
+            count++;
+            document.getElementById('count').innerHTML = count;
+            document.getElementById('msg').innerHTML = message.destinationName + " : " + message.payloadString;
+        }
+        window.onload = tryConnectFirst;
+    </script>
+</head>
+<body>
+    <div id="status">Connecting...</div>
+    <div id="count">---</div>
+    <div id="msg">---</div>
+</body>
+</html>

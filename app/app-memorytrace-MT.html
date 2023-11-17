@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;touch-action:none;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Connecting...</title>
+    <script>
+        function onConnected(){
+            subscribe("0/WHISPERER/" + type_and_serial + "/app_status");
+        }
+        function subscribeParse(message){
+            if(message.destinationName == "0/WHISPERER/" + type_and_serial + "/app_status"){
+                const from_json = JSON.parse(message.payloadString);
+                if(from_json.MT_suspend != null){
+                    if(from_json.MT_suspend){
+                        document.getElementById("stop").style.backgroundColor = "#FFF100";
+                        document.getElementById("stop").onclick = function(){ publishCmd('memory-cancel'); };
+                    }else{
+                        document.getElementById("stop").style.backgroundColor = "#FFFFFF";
+                        document.getElementById("stop").onclick = function(){ publishCmd(''); };
+                    }
+                }
+            }
+        }
+        function select(){
+            var sel = document.getElementById("select");
+            if(sel.value != ""){
+                document.getElementById("map").value = sel.value;
+                sel.options[0].selected = true;
+            }
+        }
+    </script>
+</head>
+<body style="height:100%;margin:0;" onload="tryConnectFirst();">
+<div id="status" class="area" style="height:8%;font-size:7vmin;">Connecting...</div>
+
+<input id="map" type="text" style="height:10%;font-size:7vmin;width:calc(100% - 75px);box-sizing:border-box;" value="IO76">
+<select style="height:10%;font-size:7vmin;width:40px;box-sizing:border-box;" id="select" onChange="select();">
+  <option value=""></option>
+  <option value="IO76">IO76</option>
+  <option value="B101">B101</option>
+  <option value="B102">B102</option>
+  <option value="B103">B103</option>
+  <option value="B104">B104</option>
+  <option value="B105">B105</option>
+  <option value="B106">B106</option>
+  <option value="B107">B107</option>
+  <option value="B201">B201</option>
+  <option value="B202">B202</option>
+  <option value="B203">B203</option>
+  <option value="B204">B204</option>
+  <option value="B205">B205</option>
+  <option value="B206">B206</option>
+  <option value="B207">B207</option>
+</select>
+
+<div class="area" style="height:35%;font-size:20vmin;"><div class="button" onclick="publishCmdParam('app-memorytrace', '--map ' + document.getElementById('map').value + (document.getElementById('loop').checked?' --loop':'') + (document.getElementById('reverse').checked?' --reverse':''))"><span class="text">Play</span></div></div>
+
+<div class="area" style="height:7%;width:40%;"><input type="checkbox" id="loop" name="loop"><label for="loop" style="font-size:6vmin;"> loop</label></div>
+<div class="area" style="height:7%;width:60%;"><input type="checkbox" id="reverse" name="reverse"><label for="reverse" style="font-size:6vmin;"> reverse</label></div>
+
+<div class="area" style="height:20%;font-size:15vmin;"><div class="button" onclick="publishCmd('')" id="stop"><span class="text">Stop</span></div></div>
+
+<div class="area" style="height:20%;font-size:8vmin;width:40%;"><div class="button" onclick="publishCmd('#pause')"><span class="text">#pause</span></div></div>
+<div class="area" style="height:20%;font-size:8vmin;width:60%;"><div class="button" onclick="publishCmd('#run')"><span class="text">#run</span></div></div>
+</body>
+</html>
