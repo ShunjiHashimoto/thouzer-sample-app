@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>sample-app</title>
     <script>
+        var defa = false;
+        var pls_in = "Please input.";
         var websocket_host = null;
         var websocket_port = null;
         var mqtt_username = null;
@@ -24,13 +26,11 @@
             document.cookie = "password=" + document.getElementById("password").value + "; max-age=157680000;"
         }
         function resetCookie(){
-            document.cookie = "address=" + (window.location.hostname!=""?window.location.hostname:"localhost") + "; max-age=157680000;";
-            document.cookie = "port=8080; max-age=157680000;";
-            document.cookie = "username=mqtt; max-age=157680000;";
-            document.cookie = "password=(internal_default); max-age=157680000;";
+            document.cookie = "address=" + pls_in + "; max-age=157680000;";
+            document.cookie = "port=" + pls_in + "; max-age=157680000;";
+            document.cookie = "username=" + pls_in + "; max-age=157680000;";
+            document.cookie = "password=" + pls_in + "; max-age=157680000;";
         }
-
-        var defa = false;
         function load(){
             loadCookieArea();
             var opt = document.createElement("option");
@@ -55,9 +55,9 @@
         }
         function changeType(){
             p = document.getElementById("password");
-            if(p.value == "(internal_default)" || p.value == "Need Enable Cookie"){
+            if(p.value == pls_in || p.value == "Need Enable Cookie"){
                 p.type = "text";
-                if(p.value == "(internal_default)") defa = true;
+                if(p.value == pls_in) defa = true;
             }else{
                 p.type = "password";
                 defa = false;
