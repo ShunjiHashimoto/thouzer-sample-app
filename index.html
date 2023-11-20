@@ -4,13 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>sample-app</title>
+    <script>
+        var websocket_host = null;
+        var websocket_port = null;
+        var mqtt_username = null;
+        var mqtt_password = null;
+        function loadCookie(){
+            if(document.cookie == "") resetCookie();
+            var result;
+            websocket_host = (result= new RegExp('(?:^|; )' + encodeURIComponent("address") + '=([^;]*)').exec(document.cookie)) ? String(result[1]) : null;
+            websocket_port = (result= new RegExp('(?:^|; )' + encodeURIComponent("port") + '=([^;]*)').exec(document.cookie)) ? String(result[1]) : null;
+            mqtt_username = (result= new RegExp('(?:^|; )' + encodeURIComponent("username") + '=([^;]*)').exec(document.cookie)) ? String(result[1]) : null;
+            mqtt_password = (result= new RegExp('(?:^|; )' + encodeURIComponent("password") + '=([^;]*)').exec(document.cookie)) ? String(result[1]) : null;
+        }
+        function saveCookie(){ //need four input elements
+            document.cookie = "address=" + document.getElementById("address").value + "; max-age=157680000;"
+            document.cookie = "port=" + document.getElementById("port").value + "; max-age=157680000;";
+            document.cookie = "username=" + document.getElementById("username").value + "; max-age=157680000;"
+            document.cookie = "password=" + document.getElementById("password").value + "; max-age=157680000;"
+        }
+        function resetCookie(){
+            document.cookie = "address=" + (window.location.hostname!=""?window.location.hostname:"localhost") + "; max-age=157680000;";
+            document.cookie = "port=8080; max-age=157680000;";
+            document.cookie = "username=mqtt; max-age=157680000;";
+            document.cookie = "password=(internal_default); max-age=157680000;";
+        }
+
+        var defa = false;
+        function load(){
+            loadCookieArea();
+            var opt = document.createElement("option");
+            opt.value = "auto:" + type_and_serial;
+            opt.textContent = "auto:" + type_and_serial;
+            document.getElementById("select").appendChild(opt);
+        }
+        function loadCookieArea(){
+            loadCookie();
+            if(websocket_host != null && websocket_port != null && mqtt_username != null && mqtt_password != null){
+                document.getElementById("address").value = websocket_host;
+                document.getElementById("port").value = websocket_port;
+                document.getElementById("username").value = mqtt_username;
+                document.getElementById("password").value = mqtt_password;
+            }else{
+                document.getElementById("address").value = "Need Enable Cookie";
+                document.getElementById("port").value = "Need Enable Cookie";
+                document.getElementById("username").value = "Need Enable Cookie";
+                document.getElementById("password").value = "Need Enable Cookie";
+            }
+            changeType();
+        }
+        function changeType(){
+            p = document.getElementById("password");
+            if(p.value == "(internal_default)" || p.value == "Need Enable Cookie"){
+                p.type = "text";
+                if(p.value == "(internal_default)") defa = true;
+            }else{
+                p.type = "password";
+                defa = false;
+            }
+        }
+        function clickType(){
+            if(defa) document.getElementById("password").value="";
+        }
+    </script>
 </head>
 <body>
+    overall description<br>
+
     <hr>
-    <h2><b><a href="DNE4.8.0.2.0-v20230103">DNE4.8.0.2.0-v20230103</a></b></h2>
+
+    <div style="font-size:120%;margin-bottom:5px;"><b>[Cookie] MQTT over WebSocket</b></div>
+    <span style="display:inline-block;width:120px;font-size:120%;">- address </span><input type="text" size="15" id="address" style="font-size:120%;"><br>
+    <span style="display:inline-block;width:120px;font-size:120%;">- port </span><input type="text" size="15" id="port" style="font-size:120%;"><br>
+    <span style="display:inline-block;width:120px;font-size:120%;">- username </span><input type="text" size="15" id="username" style="font-size:120%;"><br>
+    <span style="display:inline-block;width:120px;font-size:120%;">- password </span><input type="text" size="15" id="password" style="font-size:120%;" oninput="changeType();" onclick="clickType();changeType();"><br>
+    <input style="height:30px;width:100px;font-size:120%;margin-top:5px;" type="button" id="save" value="save" onclick="saveCookie();loadCookieArea();"> <input style="height:30px;width:100px;font-size:120%;margin-top:5px;" type="button" id="reset" value="reset" onclick="resetCookie();loadCookieArea();"><br>
+
+
     <hr>
-    <h4>Please connect to MQTT broker and set/get serial number. Sample code for MQTT API to Doog Navigation Engine(DNE). Only for development/test use.</h4>
+
+    <div style="font-size:120%;margin-bottom:5px;"><b>DNE5.0.0.*.*-v2024****</b><br></div>
+    comming soon.<br>
+
+    <br>
+
+    <div style="font-size:120%;margin-bottom:5px;"><b>DNE4.8.0.2.0-v20230103</b><br></div>
+    <a href="DNE4.8.0.2.0-v20230103/app">example</a> <a href="DNE4.8.0.2.0-v20230103/sample">sample</a> <a href="DNE4.8.0.2.0-v20230103/contrib">contrib</a><br>
+    [history]<br>
+    
     <hr>
+
     Doog Inc.
 </body>
 </html>
