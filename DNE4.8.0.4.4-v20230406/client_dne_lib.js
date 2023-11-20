@@ -7,7 +7,7 @@ var connetced_msg = "Connect success";
 function tryConnectFirst(){
     if(typeof loadCookie !== 'undefined') loadCookie();
     if(document.location.search.length > 2) type_and_serial = document.location.search.substring(1);
-    if(websocket_host != null && websocket_port != null && mqtt_username != null && mqtt_password != null){
+    if(websocket_host != null && websocket_port != null && websocket_username != null && websocket_password != null){
         client_connected = false;
         client = new Paho.MQTT.Client(websocket_host, Number(websocket_port), "clientId" + new Date().getTime());
         client.onMessageArrived = onMessageArrived;
@@ -15,8 +15,8 @@ function tryConnectFirst(){
         connetced_msg = type_and_serial;
         mqtt_opt = {
             useSSL: false,
-            userName: mqtt_username,
-            password: (mqtt_password=="(internal_default)"?"sI7G@DijuY":mqtt_password),
+            userName: websocket_username,
+            password: (websocket_password=="(internal_default)"?"sI7G@DijuY":websocket_password),
             onSuccess: onConnect,
             onFailure: doFail
         };
@@ -82,6 +82,9 @@ function unsubscribe(topic) {
 
 function publish(topic, msg) {
     if(client_connected){
+        if(typeof msg !== 'string'){
+            msg = JSON.stringify(msg);
+        }
         message = new Paho.MQTT.Message(msg);
         message.destinationName = topic;
         client.send(message);
