@@ -14,10 +14,8 @@
             subscribe("0/THOUZER_HW/" + type_and_serial + "/status/app");
         }
         function subscribeParse(message){
-            if(message.destinationName == "0/THOUZER_HW/" + type_and_serial + "/status/app"){
-                const from_json = JSON.parse(message.payloadString);
-                if(subscribeCheckFinishSuccess(from_json)) sequence();
-            }
+            const from_json = JSON.parse(message.payloadString);
+            if(subscribeCheckFinishSuccess(from_json)) sequence();
         }
         var name = "";
         var tick = -100;

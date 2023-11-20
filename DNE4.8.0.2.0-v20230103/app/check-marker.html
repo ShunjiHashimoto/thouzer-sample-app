@@ -17,11 +17,9 @@
             return (field != null?field:"null");
         }
         function subscribeParse(message){
-            if(message.destinationName == "0/THOUZER_HW/" + type_and_serial + "/event/app"){
-                const from_json = JSON.parse(message.payloadString);
-                if(from_json.data != null && from_json.data.data != null && from_json.data.data.mark != null){
-                    document.getElementById("message").innerHTML = "<span style=\"font-size:150%;font-weight:bold;background-color:" + (checkParse(from_json.data.event) == "badMark"?"#FF4040":"#FFFFFF") + "\">code: " + checkParse(from_json.data.data.mark.code) + ", score: " + checkParse(from_json.data.data.mark.score) + "</span><br><span style=\"font-size:250%;font-weight:bold;\">" + checkParse(from_json.data.data.mark.name) + "</span><br><br>" + message.payloadString + "<hr>" + document.getElementById("message").innerHTML;
-                }
+            const from_json = JSON.parse(message.payloadString);
+            if(from_json.data != null && from_json.data.data != null && from_json.data.data.mark != null){
+                document.getElementById("message").innerHTML = "<span style=\"font-size:150%;font-weight:bold;background-color:" + (checkParse(from_json.data.event) == "badMark"?"#FF4040":"#FFFFFF") + "\">code: " + checkParse(from_json.data.data.mark.code) + ", score: " + checkParse(from_json.data.data.mark.score) + "</span><br><span style=\"font-size:250%;font-weight:bold;\">" + checkParse(from_json.data.data.mark.name) + "</span><br><br>" + message.payloadString + "<hr>" + document.getElementById("message").innerHTML;
             }
         }
         function select(){
@@ -63,7 +61,7 @@
   <option value="700">700</option><option value="701">701</option><option value="702">702</option><option value="703">703</option>
   <option value="704">704</option><option value="705">705</option><option value="706">706</option><option value="707">707</option>
 </select>
-<div class="area" style="width:50%;height:12%;font-size:10vmin;"><div class="button" onclick="publishCmd('')"><span class="text">Stop</span></div></div>
+<div class="area" style="width:50%;height:12%;font-size:10vmin;"><div class="button" onclick="publishCmd('')"><span class="text">Cancel</span></div></div>
 <div class="area" style="width:50%;height:12%;font-size:10vmin;"><div class="button" onclick="go()"><span class="text">Go</span></div></div>
 <div id="message" style="overflow-y:scroll;font-size:4vmin;width:100%;"><br><b>*** Important Notice ***</b><br><br>Please check score.<br>It is an ERROR if the score less than zero.<br>Check the score higher than 100.</div>
 </body>

@@ -16,17 +16,15 @@
 <body style="height:100%;margin:0;" onload="tryConnectFirst();init();">
 <div id="status" class="area" style="height:8%;font-size:7vmin;">Connecting...</div>
 <input id="topic" type="text" style="height:40px;font-size:15px;width:calc(100% - 80px);box-sizing:border-box;"><input style="height:40px;font-size:20px;width:80px;box-sizing:border-box;" type="button" id="set" value="set" onclick="set();">
-<div id="message" style="overflow-y:scroll;font-size:4vmin;width:100%;">Please push button.<br><br>INVISIBLE default subscribed topic.<br> 0/WHISPERER/+/version <input id="visible" type="checkbox">visible</check></div>
+<div id="message" style="overflow-y:scroll;font-size:4vmin;width:100%;">Please push button.</div>
 
 <script>
-    var visibleVersion = false;
     function init(){
         document.getElementById("topic").value = "0/THOUZER_HW/" + type_and_serial + "/#";
     }
     function set(){
         if(document.getElementById("set").value == "set"){
             document.getElementById("set").value = "stop";
-            visibleVersion = document.getElementById("visible").checked;
             document.getElementById("message").innerHTML = "Please wait.";
             subscribe(document.getElementById("topic").value);
         }else{
@@ -36,7 +34,6 @@
         }
     }
     function subscribeParse(message){
-        if(visibleVersion == false && message.destinationName.match(new RegExp("0/WHISPERER/.+/version")) != null) return;
         document.getElementById("message").innerHTML = message.destinationName + "<br><br>" + message.payloadString + "<hr>" + document.getElementById("message").innerHTML;
     }
 </script>

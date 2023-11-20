@@ -14,22 +14,20 @@
             subscribe("0/WHISPERER/" + type_and_serial + "/io12");
         }
         function subscribeParse(message){
-            if(message.destinationName == "0/WHISPERER/" + type_and_serial + "/io12"){
-                const from_json = JSON.parse(message.payloadString);
-                if(from_json.level != null){
-                    document.getElementById("IO7").style.backgroundColor = (from_json.level.charAt(4) == '1')?"#AFEEEE":"#DDA0DD";
-                    document.getElementById("IO6").style.backgroundColor = (from_json.level.charAt(5) == '1')?"#AFEEEE":"#DDA0DD";
-                    document.getElementById("IO5").style.backgroundColor = (from_json.level.charAt(6) == '1')?"#FF0000":"";
-                    document.getElementById("IO4").style.backgroundColor = (from_json.level.charAt(7) == '1')?"#FFF100":"";
-                    document.getElementById("IO3").style.backgroundColor = (from_json.level.charAt(8) == '1')?"#00FF00":"";
-                    document.getElementById("IO2").style.backgroundColor = (from_json.level.charAt(9) == '1')?"#AFEEEE":"#DDA0DD";
-                    document.getElementById("IO1").style.backgroundColor = (from_json.level.charAt(10) == '1')?"#FFA500":"#B0B0B0";
-                    document.getElementById("IO0").style.backgroundColor = (from_json.level.charAt(11) == '1')?"#FFA500":"#B0B0B0";
-                    document.getElementById("0R3").style.backgroundColor = (from_json.level.charAt(3) == '1')?"#AFEEEE":"#DDA0DD";
-                    document.getElementById("0R4").style.backgroundColor = (from_json.level.charAt(2) == '1')?"#AFEEEE":"#DDA0DD";
-                    document.getElementById("1L3").style.backgroundColor = (from_json.level.charAt(1) == '1')?"#AFEEEE":"#DDA0DD";
-                    document.getElementById("1L4").style.backgroundColor = (from_json.level.charAt(0) == '1')?"#AFEEEE":"#DDA0DD";
-                }
+            const from_json = JSON.parse(message.payloadString);
+            if(from_json.level != null){
+                document.getElementById("IO7").style.backgroundColor = (from_json.level.charAt(4) == '1')?"#AFEEEE":"#DDA0DD";
+                document.getElementById("IO6").style.backgroundColor = (from_json.level.charAt(5) == '1')?"#AFEEEE":"#DDA0DD";
+                document.getElementById("IO5").style.backgroundColor = (from_json.level.charAt(6) == '1')?"#FF0000":"";
+                document.getElementById("IO4").style.backgroundColor = (from_json.level.charAt(7) == '1')?"#FFF100":"";
+                document.getElementById("IO3").style.backgroundColor = (from_json.level.charAt(8) == '1')?"#00FF00":"";
+                document.getElementById("IO2").style.backgroundColor = (from_json.level.charAt(9) == '1')?"#AFEEEE":"#DDA0DD";
+                document.getElementById("IO1").style.backgroundColor = (from_json.level.charAt(10) == '1')?"#FFA500":"#B0B0B0";
+                document.getElementById("IO0").style.backgroundColor = (from_json.level.charAt(11) == '1')?"#FFA500":"#B0B0B0";
+                document.getElementById("0R3").style.backgroundColor = (from_json.level.charAt(3) == '1')?"#AFEEEE":"#DDA0DD";
+                document.getElementById("0R4").style.backgroundColor = (from_json.level.charAt(2) == '1')?"#AFEEEE":"#DDA0DD";
+                document.getElementById("1L3").style.backgroundColor = (from_json.level.charAt(1) == '1')?"#AFEEEE":"#DDA0DD";
+                document.getElementById("1L4").style.backgroundColor = (from_json.level.charAt(0) == '1')?"#AFEEEE":"#DDA0DD";
             }
         }
     </script>
@@ -51,4 +49,4 @@
 <div class="area" style="height:20%;width:25%;font-size:5vmin;position:relative;border:2px solid #232323;" id="1L4"><span class="text">1L4</span></div>
 
 </body>
-</html>
+</html>x
