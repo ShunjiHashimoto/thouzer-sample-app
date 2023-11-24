@@ -33,6 +33,7 @@
         }
         function load(){
             loadCookieArea();
+            document.getElementById("protocol").innerHTML = (location.protocol == 'http:'?"<b style='color:green;'>HTTP</b>":"<b style='color:red;'>"+(location.protocol == 'https:'?"HTTPS":"UNDEFINED")+"</b>");
         }
         function loadCookieArea(){
             loadCookie();
@@ -70,6 +71,7 @@
     This page is linked with github page: <a href="https://github.com/DoogInc/sample-app">https://github.com/DoogInc/sample-app</a><br>
     Please connect to MQTT broker and set/get serial number. <br>
     DNE does not support encrypted TLS/SSL connection of MQTT, and can only use fixed IP broker.<br>
+    This page is <span id="protocol"></span>.
 
     <hr>
 
