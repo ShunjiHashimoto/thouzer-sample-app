@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;touch-action:none;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Connecting...</title>
+    <script>
+        function onConnected(){ }
+    </script>
+</head>
+<body style="height:100%;margin:0;" onload="tryConnectFirst();">
+<div id="status" class="area" style="height:8%;font-size:7vmin;">Connecting...</div>
+<div class="area" style="height:20%;font-size:12vmin;"><div class="button" onclick="publishCmd('')"><span class="text">Cancel</span></div></div>
+<div class="area" style="height:72%;font-size:12vmin;"><div class="button" onclick="publishCmd('app-karugamo')"><span class="text">Follow-Me</span></div></div>
+</body>
+</html>

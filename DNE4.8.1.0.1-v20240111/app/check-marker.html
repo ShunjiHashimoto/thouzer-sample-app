@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Connecting...</title>
+    <script>
+        function onConnected(){
+            subscribe("0/THOUZER_HW/" + type_and_serial + "/event/app");
+        }
+        function checkParse(field){
+            return (field != null?field:"null");
+        }
+        function subscribeParse(message){
+            const from_json = JSON.parse(message.payloadString);
+            if(from_json.data != null && from_json.data.data != null && from_json.data.data.mark != null){
+                document.getElementById("message").innerHTML = "<span style=\"font-size:150%;font-weight:bold;background-color:" + (checkParse(from_json.data.event) == "badMark"?"#FF4040":"#FFFFFF") + "\">code: " + checkParse(from_json.data.data.mark.code) + ", score: " + checkParse(from_json.data.data.mark.score) + "</span><br><span style=\"font-size:250%;font-weight:bold;\">" + checkParse(from_json.data.data.mark.name) + "</span><br><br>" + message.payloadString + "<hr>" + document.getElementById("message").innerHTML;
+            }
+        }
+        function select(){
+            var sel = document.getElementById("select");
+            if(sel.value != ""){
+                document.getElementById("dest").value = sel.value;
+                sel.options[0].selected = true;
+            }
+        }
+        function go(){
+            if(document.getElementById("dest").value != "") publishHW(document.getElementById("dest").value);
+        }
+    </script>
+</head>
+<body style="height:100%;margin:0;" onload="tryConnectFirst();">
+<div id="status" class="area" style="height:8%;font-size:7vmin;">Connecting...</div>
+<input id="dest" type="text" style="height:12%;font-size:9vmin;width:calc(100% - 75px);box-sizing:border-box;text-align:center;" value="9000">
+<select style="height:12%;font-size:9vmin;width:40px;box-sizing:border-box;" id="select" onChange="select();">
+  <option value=""></option>
+
+  <option value="100">100</option><option value="101">101</option><option value="102">102</option><option value="103">103</option>
+  <option value="104">104</option><option value="105">105</option><option value="106">106</option><option value="107">107</option>
+
+  <option value="200">200</option><option value="201">201</option><option value="202">202</option><option value="203">203</option>
+  <option value="204">204</option><option value="205">205</option><option value="206">206</option><option value="207">207</option>
+
+  <option value="300">300</option><option value="301">301</option><option value="302">302</option><option value="303">303</option>
+  <option value="304">304</option><option value="305">305</option><option value="306">306</option><option value="307">307</option>
+
+  <option value="400">400</option><option value="401">401</option><option value="402">402</option><option value="403">403</option>
+  <option value="404">404</option><option value="405">405</option><option value="406">406</option><option value="407">407</option>
+
+  <option value="500">500</option><option value="501">501</option><option value="502">502</option><option value="503">503</option>
+  <option value="504">504</option><option value="505">505</option><option value="506">506</option><option value="507">507</option>
+
+  <option value="600">600</option><option value="601">601</option><option value="602">602</option><option value="603">603</option>
+  <option value="604">604</option><option value="605">605</option><option value="606">606</option><option value="607">607</option>
+
+  <option value="700">700</option><option value="701">701</option><option value="702">702</option><option value="703">703</option>
+  <option value="704">704</option><option value="705">705</option><option value="706">706</option><option value="707">707</option>
+</select>
+<div class="area" style="width:50%;height:12%;font-size:10vmin;"><div class="button" onclick="publishCmd('')"><span class="text">Cancel</span></div></div>
+<div class="area" style="width:50%;height:12%;font-size:10vmin;"><div class="button" onclick="go()"><span class="text">Go</span></div></div>
+<div id="message" style="overflow-y:scroll;font-size:4vmin;width:100%;"><br><b>*** Important Notice ***</b><br><br>Please check score.<br>It is an ERROR if the score less than zero.<br>Check the score higher than 100.</div>
+</body>
+</html>

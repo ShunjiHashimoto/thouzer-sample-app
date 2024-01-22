@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;touch-action:none;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Connecting...</title>
+    <script>
+        function onConnected(){
+            subscribe("0/THOUZER_HW/" + type_and_serial + "/event/app");
+        }
+        function subscribeParse(message){
+            const from_json = JSON.parse(message.payloadString);
+            if(from_json.data != null && from_json.data.application == "highway" && from_json.data.status == "exit_error" && from_json.data.event == "badMark" && from_json.data.data.mark.code != null){
+                document.getElementById("window").style.backgroundColor = "#FF4040";
+                document.getElementById("pop-up").checked = true;
+                document.getElementById("window").innerHTML = "<br><span style=\"font-size:150%;font-weight:bold;\">code: " + from_json.data.data.mark.code + "</span><br><span style=\"font-size:200%;font-weight:bold;\">" + from_json.data.data.mark.name + "</span><br><span style=\"font-size:120%;font-weight:bold;\">score: " + from_json.data.data.mark.score + "</span><br><br><hr><br>" + message.payloadString;
+            }
+        }
+    </script>
+</head>
+<body style="height:100%;margin:0;" onload="tryConnectFirst();">
+<div id="status" class="area" style="height:8%;font-size:7vmin;">Connecting...</div>
+<div class="area" style="height:10%;font-size:7vmin;">          <div class="button" onclick="publishCmd('')"><span class="text">Cancel</span></div></div>
+
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(101)"><span class="text">Go_101</span></div></div>
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(201)"><span class="text">Go_201</span></div></div>
+
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(102)"><span class="text">Go_102</span></div></div>
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(202)"><span class="text">Go_202</span></div></div>
+
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(103)"><span class="text">Go_103</span></div></div>
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(203)"><span class="text">Go_203</span></div></div>
+
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(104)"><span class="text">Go_104</span></div></div>
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(204)"><span class="text">Go_204</span></div></div>
+
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(105)"><span class="text">Go_105</span></div></div>
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(205)"><span class="text">Go_205</span></div></div>
+
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(106)"><span class="text">Go_106</span></div></div>
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(206)"><span class="text">Go_206</span></div></div>
+
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(107)"><span class="text">Go_107</span></div></div>
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishHW(207)"><span class="text">Go_207</span></div></div>
+
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishCmd('#pause')"><span class="text">#pause</span></div></div>
+<div class="area" style="height:10%;font-size:7vmin;width:50%;"><div class="button" onclick="publishCmd('#run')"><span class="text">#run</span></div></div>
+
+<input type="checkbox" id="pop-up"><label class="overlay" for="pop-up"><label class="window" id="window" for="pop-up"></label></label>
+</body>
+</html>

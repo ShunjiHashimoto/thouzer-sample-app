@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;touch-action:none;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Connecting...</title>
+    <script>
+        function onConnected(){
+            subscribe("0/WHISPERER/" + type_and_serial + "/app_status");
+        }
+        var type = 1;
+        function subscribeParse(message){
+            const from_json = JSON.parse(message.payloadString);
+            if(from_json.MT_suspend != null){
+                var d = document.getElementById("suspend_resume");
+                if(from_json.MT_suspend){
+                    d.style.backgroundColor = "#FFF100";
+                    d.innerHTML = '<span class="text">Play_Resume</span>';
+                    type = 2;
+                }else{
+                    d.style.backgroundColor = "#FFFFFF";
+                    d.innerHTML = '<span class="text">#suspend</span>';
+                    type = 1;
+                }
+            }
+        }
+        function suspend_resume(){
+            if(type == 1){
+                publishCmd('#suspend');
+            }else{
+                publishCmdParam('app-memorytrace', '--map NOUSE --resume' + (document.getElementById('reverse').checked?' --reverse':''));
+            }
+        }
+    </script>
+</head>
+<body style="height:100%;margin:0;" onload="tryConnectFirst();">
+<div id="status" class="area" style="height:8%;font-size:7vmin;">Connecting...</div>
+<div class="area" style="height:12%;font-size:9vmin;"><div class="button" onclick="publishCmd('memory-cancel')"><span class="text">Cancel</span></div></div>
+<div class="area" style="height:12%;font-size:9vmin;"><div class="button" onclick="publishCmdParam('app-memorytrace', '--map IO76'+(document.getElementById('loop').checked?' --loop':'')+(document.getElementById('reverse').checked?' --reverse':''))"><span class="text">Play_IO76</span></div></div>
+<div class="area" style="height:12%;font-size:9vmin;"><div class="button" onclick="publishCmdParam('app-memorytrace', '--map B101'+(document.getElementById('loop').checked?' --loop':'')+(document.getElementById('reverse').checked?' --reverse':''))"><span class="text">Play_B101</span></div></div>
+<div class="area" style="height:12%;font-size:9vmin;"><div class="button" onclick="publishCmdParam('app-memorytrace', '--map B102'+(document.getElementById('loop').checked?' --loop':'')+(document.getElementById('reverse').checked?' --reverse':''))"><span class="text">Play_B102</span></div></div>
+<div class="area" style="height:12%;font-size:9vmin;"><div class="button" onclick="publishCmdParam('app-memorytrace', '--map B103'+(document.getElementById('loop').checked?' --loop':'')+(document.getElementById('reverse').checked?' --reverse':''))"><span class="text">Play_B103</span></div></div>
+<div class="area" style="height:12%;font-size:9vmin;"><div class="button" onclick="publishCmdParam('app-memorytrace', '--map B104'+(document.getElementById('loop').checked?' --loop':'')+(document.getElementById('reverse').checked?' --reverse':''))"><span class="text">Play_B104</span></div></div>
+<div class="area" style="height:7%;width:40%;"><input type="checkbox" id="loop" name="loop"><label for="loop" style="font-size:6vmin;"> loop</label></div>
+<div class="area" style="height:7%;width:60%;"><input type="checkbox" id="reverse" name="reverse"><label for="reverse" style="font-size:6vmin;"> reverse</label></div>
+<div class="area" style="height:12%;font-size:10vmin;"><div class="button" onclick="suspend_resume()" id="suspend_resume"><span class="text">#suspend</span></div></div>
+</body>
+</html>

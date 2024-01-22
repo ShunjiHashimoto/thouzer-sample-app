@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;touch-action:none;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Connecting...</title>
+    <script>
+        function onConnected(){
+            subscribe("0/THOUZER_HW/" + type_and_serial + "/status/app");
+        }
+        function subscribeParse(message){
+            const from_json = JSON.parse(message.payloadString);
+            if(subscribeCheckFinishSuccess(from_json)) sequence();
+        }
+        var name = "";
+        var tick = -100;
+        function start(select){
+            name = select;
+            tick = 0;
+            sequence();
+        }
+        function stop(){
+            publishCmd('');
+            tick = -100;
+        }
+        function sequence(){
+            if(name == "A"){
+                if(tick == 0) publishHW(101);
+                if(tick == 1) setTimeout(sequence, 1000);
+                if(tick == 2){ publishCmd('#ext1_toggle'); setTimeout(sequence, 5000); }
+                if(tick == 3) publishHW(102);
+                if(tick == 4){ stop(); return; }
+            }
+            if(name == "B"){
+                if(tick == 0) publishHW(103);
+                if(tick == 1) setTimeout(sequence, 1000);
+                if(tick == 2){ publishCmd('#ext1_toggle'); setTimeout(sequence, 5000); }
+                if(tick == 3) publishHW(104);
+                if(tick == 4){ stop(); return; }
+            }
+            ++tick;
+        }
+    </script>
+</head>
+<body style="height:100%;margin:0;" onload="tryConnectFirst();">
+<div id="status" class="area" style="height:8%;font-size:7vmin;">Connecting...</div>
+<div class="area" style="height:18%;font-size:12vmin;"><div class="button" onclick="publishCmd('#ext1_toggle')">
+  <span class="text">#ext1_toggle</span>
+</div></div>
+<div class="area" style="height:18%;"><div class="button" onclick="stop()">
+  <span class="text" style="font-size:12vmin;">Stop</span>
+</div></div>
+<div class="area" style="height:28%;"><div class="button" onclick="start('A')">
+  <span class="text" style="font-size:15vmin;">Start-A</span>
+  <br>
+  <span style="font-size:3vmin;">101>sleep>#ext1_toggle>sleep>102</span>
+</div></div>
+<div class="area" style="height:28%;"><div class="button" onclick="start('B')">
+  <span class="text" style="font-size:15vmin;">Start-B</span>
+  <br>
+  <span style="font-size:3vmin;">103>sleep>#ext1_toggle>sleep>104</span>
+</div></div>
+
+</body>
+</html>

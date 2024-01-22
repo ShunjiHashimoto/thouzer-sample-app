@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;touch-action:none;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Connecting...</title>
+    <script>
+        function onConnected(){
+            subscribe("0/WHISPERER/" + type_and_serial + "/app_status");
+        }
+        var type = 0;
+        function subscribeParse(message){
+            const from_json = (message != null)?JSON.parse(message.payloadString):null;
+            var d = document.getElementById("button");
+            if(message != null && from_json.MT_suspend != null && from_json.MT_suspend){
+                d.style.backgroundColor = "#FFF100";
+                d.innerHTML = '<span class="text">Play_Resume</span>';
+                type = 2;
+                document.getElementById("map").disabled = true;
+                document.getElementById("select").disabled = true;
+            }
+            else if(message != null && from_json.app != null && (from_json.app == "./bin/app-memorytrace" || from_json.app == "./bin/app-memorytraceResume") && from_json.running != null && from_json.running == "OK"){
+                d.style.backgroundColor = "#FFF1B0";
+                d.innerHTML = '<span class="text">#suspend</span>';
+                type = 1;
+                document.getElementById("map").disabled = true;
+                document.getElementById("select").disabled = true;
+            }
+            else {
+                d.style.backgroundColor = "";
+                d.innerHTML = '<span class="text">Play</span>';
+                type = 0;
+                document.getElementById("map").disabled = false;
+                document.getElementById("select").disabled = false;
+            }
+        }
+        function select(){
+            var sel = document.getElementById("select");
+            if(sel.value != ""){
+                document.getElementById("map").value = sel.value;
+                sel.options[0].selected = true;
+            }
+        }
+        function buttuon_onClick(){
+            if(type == 0) publishCmdParam('app-memorytrace', '--map ' + document.getElementById('map').value + (document.getElementById('loop').checked?' --loop':'') + (document.getElementById('reverse').checked?' --reverse':''));
+            if(type == 1) publishCmd('#suspend');
+            if(type == 2) publishCmdParam('app-memorytrace', '--map NOUSE --resume' + (document.getElementById('reverse').checked?' --reverse':''));
+        }
+    </script>
+</head>
+<body style="height:100%;margin:0;" onload="tryConnectFirst();subscribeParse(null);">
+<div id="status" class="area" style="height:8%;font-size:7vmin;">Connecting...</div>
+<div class="area" style="height:12%;font-size:9vmin;"><div class="button" onclick="publishCmd('memory-cancel')"><span class="text">Cancel</span></div></div>
+
+<input id="map" type="text" style="height:10%;font-size:7vmin;width:calc(100% - 75px);box-sizing:border-box;" value="IO76">
+<select style="height:10%;font-size:7vmin;width:40px;box-sizing:border-box;" id="select" onChange="select();">
+  <option value=""></option>
+  <option value="IO76">IO76</option>
+  <option value="B101">B101</option>
+  <option value="B102">B102</option>
+  <option value="B103">B103</option>
+  <option value="B104">B104</option>
+  <option value="B105">B105</option>
+  <option value="B106">B106</option>
+  <option value="B107">B107</option>
+  <option value="B201">B201</option>
+  <option value="B202">B202</option>
+  <option value="B203">B203</option>
+  <option value="B204">B204</option>
+  <option value="B205">B205</option>
+  <option value="B206">B206</option>
+  <option value="B207">B207</option>
+</select>
+
+<div class="area" style="height:43%;font-size:15vmin;"><div class="button" id="button" onclick="buttuon_onClick()"></div></div>
+
+<div class="area" style="height:7%;width:40%;"><input type="checkbox" id="loop" name="loop"><label for="loop" style="font-size:6vmin;"> loop</label></div>
+<div class="area" style="height:7%;width:60%;"><input type="checkbox" id="reverse" name="reverse"><label for="reverse" style="font-size:6vmin;"> reverse</label></div>
+
+<div class="area" style="height:20%;font-size:7vmin;width:40%;"><div class="button" onclick="publishCmd('#pause')"><span class="text">#pause</span></div></div>
+<div class="area" style="height:20%;font-size:7vmin;width:60%;"><div class="button" onclick="publishCmd('#run')"><span class="text">#run</span></div></div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;touch-action:none;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Connecting...</title>
+    <script>
+        function onConnected(){
+            subscribe("0/WHISPERER/" + type_and_serial + "/io12");
+            subscribe("0/WHISPERER/" + type_and_serial + "/app_status");
+        }
+        function subscribeParse(message){
+            const from_json = JSON.parse(message.payloadString);
+            if(from_json.level != null){
+                document.getElementById("IO1").style.backgroundColor = (from_json.level.charAt(10) == '1')?"#FFF100":"";
+                document.getElementById("IO0").style.backgroundColor = (from_json.level.charAt(11) == '1')?"#FFF100":"";
+            }
+            if(from_json.MT_teach != null){
+                if(from_json.MT_teach){
+                    document.getElementById("map").style.backgroundColor = "#FFF100";
+                    document.getElementById("map").disabled = true;
+                    document.getElementById("select").disabled = true;
+                }else{
+                    document.getElementById("map").style.backgroundColor = "";
+                    document.getElementById("map").disabled = false;
+                    document.getElementById("select").disabled = false;
+                }
+            }
+        }
+        function select(){
+            var sel = document.getElementById("select");
+            if(sel.value != ""){
+                document.getElementById("map").value = sel.value;
+                sel.options[0].selected = true;
+            }
+        }
+    </script>
+</head>
+<body style="height:100%;margin:0;" onload="tryConnectFirst();">
+<div id="status" class="area" style="height:8%;font-size:7vmin;">Connecting...</div>
+<input id="map" type="text" style="height:12%;font-size:9vmin;width:calc(100% - 75px);box-sizing:border-box;" value="IO76">
+<select style="height:12%;font-size:9vmin;width:40px;box-sizing:border-box;" id="select" onChange="select();">
+  <option value=""></option>
+  <option value="IO76">IO76</option>
+  <option value="B101">B101</option>
+  <option value="B102">B102</option>
+  <option value="B103">B103</option>
+  <option value="B104">B104</option>
+  <option value="B105">B105</option>
+  <option value="B106">B106</option>
+  <option value="B107">B107</option>
+  <option value="B201">B201</option>
+  <option value="B202">B202</option>
+  <option value="B203">B203</option>
+  <option value="B204">B204</option>
+  <option value="B205">B205</option>
+  <option value="B206">B206</option>
+  <option value="B207">B207</option>
+</select>
+<div class="area" style="height:11%;font-size:6vmin;"><div class="button" onclick="publishCmdParam('memory-start-cancel', '--map ' + document.getElementById('map').value)" id="memory"><span class="text" style="font-weight:bold;">Memorize Start/Cancel</span></div></div>
+<div class="area" style="height:11%;width:65%;font-size:6vmin;"><div class="button" onclick="publishCmd('memory-save')"><span class="text" style="font-weight:bold;">Save</span></div></div>
+<div class="area" style="height:11%;width:35%;font-size:6vmin;"><div class="button" onclick="publishCmd('memory-cancel')"><span class="text" style="font-weight:bold;">Cancel</span></div></div>
+
+<div class="area" style="height:15%;width:50%;font-size:4vmin;"><div class="button" onclick="publishCmd('#pause')"><span class="text">#pause</span></div></div>
+<div class="area" style="height:15%;width:50%;font-size:4vmin;"><div class="button" onclick="publishCmd('#run')"><span class="text">#run</span></div></div>
+
+<div class="area" style="height:8%;width:75%;font-size:3vmin;"><div class="button" onclick="publishCmd('#pause#pauseset_' + document.getElementById('time').value + '#run')"><span class="text">#pause#pauseset_[0-86400]#run -></span></div></div>
+<div class="area" style="height:8%;width:25%;font-size:4vmin;"><input id="time" type="number" style="height:100%;font-size:4vmin;width:100%;box-sizing:border-box;" value="0" min="0" max="86400" step="1"></div>
+
+<div class="area" style="height:12%;font-size:4vmin;"><div class="button" onclick="publishCmd('#set_suspend')"><span class="text">#set_suspend</span></div></div>
+<div class="area" style="height:8%;font-size:4vmin;"><div class="button" onclick="publishCmd('#set_accuracy')"><span class="text">#set_accuracy</span></div></div>
+
+<div class="area" style="height:15%;width:50%;font-size:4vmin;"><div class="button" onclick="publishCmd('#ext1_toggle')" id="IO1"><span class="text">#ext1_toggle</span></div></div>
+<div class="area" style="height:15%;width:50%;font-size:4vmin;"><div class="button" onclick="publishCmd('#ext0_toggle')" id="IO0"><span class="text">#ext0_toggle</span></div></div>
+</body>
+</html>

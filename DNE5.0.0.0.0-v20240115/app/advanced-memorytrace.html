@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;touch-action:none;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <link rel="stylesheet" href="../default.css">
+    <title>Connecting...</title>
+    <script>
+        function onConnected(){
+            subscribe("0/WHISPERER/" + type_and_serial + "/io12");
+            subscribe("0/WHISPERER/" + type_and_serial + "/app_status");
+            subscribe("0/THOUZER_HW/" + type_and_serial + "/event/app");
+            subscribe("0/THOUZER_HW/" + type_and_serial + "/indicator/app");
+            pos_t_update("---", "---");
+        }
+        function subscribeParse(message){
+            const from_json = JSON.parse(message.payloadString);
+            if(message.destinationName == "0/WHISPERER/" + type_and_serial + "/io12"){
+                if(from_json.level != null){
+                    document.getElementById("IO1").style.backgroundColor = (from_json.level.charAt(10) == '1')?"#FFF100":"";
+                    document.getElementById("IO0").style.backgroundColor = (from_json.level.charAt(11) == '1')?"#FFF100":"";
+                }
+            }
+            if(message.destinationName == "0/WHISPERER/" + type_and_serial + "/app_status"){
+                if(from_json.MT_suspend != null && from_json.app != null && from_json.MT_teach != null){
+                    if(from_json.app.indexOf("./bin/app-memorytrace") == 0){
+                        document.getElementById("memorize_t").innerText = "Stop w/o hold";
+                        document.getElementById("play_t").innerText = "Stop";
+                        document.getElementById("play").setAttribute("onclick", "stop()");
+                    }else{
+                        document.getElementById("memorize_t").innerText = "Memorize";
+                        document.getElementById("play_t").innerText = "Play";
+                        document.getElementById("play").setAttribute("onclick", "play()");
+                    }
+                    if(from_json.MT_teach) document.getElementById("memorize_t").innerText = "Save";
+                    if(from_json.MT_suspend){
+                        document.getElementById("memorize_t").innerText = "Cancel Resume";
+                        document.getElementById("play_t").innerText = "Play Resume";
+                    }
+                    if(from_json.app.indexOf("./bin/app-memorytrace") != 0 && !from_json.MT_teach && !from_json.MT_suspend){
+                        document.getElementById("pos_t").style.display = 'none';
+                        document.getElementById("map").style.display = 'block';
+                        document.getElementById("select").style.display = 'block';
+                    }else{
+                        document.getElementById("map").style.display = 'none';
+                        document.getElementById("select").style.display = 'none';
+                        document.getElementById("pos_t").style.display = 'block';
+                    }
+                }
+            }
+            if(message.destinationName == "0/THOUZER_HW/" + type_and_serial + "/indicator/app" && from_json.data != null && from_json.data.type != null){
+                var text = from_json.data.type;
+                if(from_json.data.number != null && from_json.data.number != "-1") text += "(" + from_json.data.number + ")";
+                document.getElementById("details").innerHTML = "<span style=\"font-weight:bold;background-color:" + (text.indexOf("error[")==0?"#FF3030":text.indexOf("alert:")==0?"#FF7070":text.indexOf("alarm:")==0?"#FFC0C0":"#FFFF7F") + ";\">" + text + "</span><hr>" + document.getElementById("details").innerHTML;
+            }
+            if(message.destinationName == "0/THOUZER_HW/" + type_and_serial + "/event/app"){
+                if(from_json.data != null && from_json.data.application != null && (from_json.data.application == "memorytrace" || from_json.data.application == "memorytraceTeach")){
+                    if(from_json.data.map != null && from_json.data.pos != null) pos_t_update(from_json.data.map, from_json.data.pos);
+                    if(from_json.data.alarmRatio != null) document.getElementById("alarm_t").innerText = "alarm:" + from_json.data.alarmRatio;
+                    if(from_json.data.alertRatio != null) document.getElementById("alert_t").innerText = "alert:" + from_json.data.alertRatio;
+                }
+            }
+        }
+        function select(){
+            var sel = document.getElementById("select");
+            if(sel.value != ""){
+                document.getElementById("map").value = sel.value;
+                sel.options[0].selected = true;
+            }
+        }
+        function play(){
+            publishCmdParam('app-memorytrace', '--map ' + document.getElementById('map').value + (document.getElementById('loop').checked?" --loop":"") + (document.getElementById('reverse').checked?" --reverse":"") + (document.getElementById('rewind').checked?" --rewind":""));
+            pos_t_update("---", "---");
+            document.getElementById("alarm_t").innerText = "alarm:---";
+            document.getElementById("alert_t").innerText = "alert:---";
+            document.getElementById("details").innerHTML = "<br><b>*** Details of Indicator and Memorytrace ***</b>";
+            if(document.getElementById('reverse').checked && document.getElementById('rewind').checked){
+                document.getElementById("details").innerHTML = "<span style=\"font-weight:bold;background-color:#FFA0A0;\">Can't select both reverse and rewind.</span><hr>" + document.getElementById("details").innerHTML;
+            }
+        }
+        function stop(){ publishCmd(''); }
+        function memorize(){
+            publishCmdParam('memory-start-save', '--map ' + document.getElementById('map').value + (document.getElementById('teachBack').checked?" --teachBack":""));
+            pos_t_update("---", "---");
+        }
+        function memorize_select(){
+            document.getElementById("play_menu").style.display = 'none';
+            document.getElementById("memorize_menu").style.display = 'block';
+            document.getElementById("play_select").style.backgroundColor = '#EEEEEE';
+            document.getElementById("memorize_select").style.backgroundColor = '#FFFFFF';
+            document.getElementById("play_select").style.color = '#555555';
+            document.getElementById("memorize_select").style.color = '#000000';
+            document.getElementById("play_select").style.border = 'none';
+            document.getElementById("memorize_select").style.border = 'solid';
+        }
+        function play_select(){
+            document.getElementById("memorize_menu").style.display = 'none';
+            document.getElementById("play_menu").style.display = 'block';
+            document.getElementById("memorize_select").style.backgroundColor = '#EEEEEE';
+            document.getElementById("play_select").style.backgroundColor = '#FFFFFF';
+            document.getElementById("memorize_select").style.color = '#555555';
+            document.getElementById("play_select").style.color = '#000000';
+            document.getElementById("memorize_select").style.border = 'none';
+            document.getElementById("play_select").style.border = 'solid';
+        }
+        function pos_t_update(m, p){
+            document.getElementById("pos_t").innerHTML = "<div style='height:100%;width:100%;float:left;position:relative;'><span class='text'>map : " + m + " / pos : " + p + "</span></div>";
+        }
+    </script>
+</head>
+<body style="height:100%;margin:0;" onload="tryConnectFirst();">
+<div id="status" class="area" style="height:8%;font-size:6vmin;">Connecting...</div>
+
+<div class="area" style="height:15%;width:50%;font-size:6vmin;"><div class="button" onclick="memorize()" id="memorize"><span class="text" style="font-weight:bold;" id="memorize_t">Memorize</span></div></div>
+<div class="area" style="height:15%;width:50%;font-size:6vmin;"><div class="button" onclick="play()" id="play"><span class="text" style="font-weight:bold;" id="play_t">Play</span></div></div>
+
+<input id="map" type="text" style="height:12%;font-size:9vmin;width:calc(100% - 75px);box-sizing:border-box;float:left;" value="IO76">
+<select style="height:12%;font-size:9vmin;width:40px;box-sizing:border-box;float:left;" id="select" onchange="select();">
+  <option value=""></option>
+  <option value="IO76">IO76</option>
+  <option value="B101">B101</option>
+  <option value="B102">B102</option>
+  <option value="B103">B103</option>
+  <option value="B104">B104</option>
+  <option value="B105">B105</option>
+  <option value="B106">B106</option>
+  <option value="B107">B107</option>
+  <option value="B201">B201</option>
+  <option value="B202">B202</option>
+  <option value="B203">B203</option>
+  <option value="B204">B204</option>
+  <option value="B205">B205</option>
+  <option value="B206">B206</option>
+  <option value="B207">B207</option>
+</select>
+<div class="area" style="height:12%;font-size:6vmin;display:none;" id="pos_t"></div>
+
+<div class="area" style="height:10%;width:50%;font-size:3vmin;"><div class="button" onclick="publishCmd('#pause')"><span class="text">Begin PAUSE<br>#pause</span></div></div>
+<div class="area" style="height:10%;width:50%;font-size:3vmin;"><div class="button" onclick="publishCmd('#run')"><span class="text">End PAUSE<br>#run</span></div></div>
+<div class="area" style="height:10%;width:50%;font-size:3vmin;"><div class="button" onclick="publishCmd('#ext1_toggle')" id="IO1"><span class="text">IO 1<br>#ext1_toggle</span></div></div>
+<div class="area" style="height:10%;width:50%;font-size:3vmin;"><div class="button" onclick="publishCmd('#ext0_toggle')" id="IO0"><span class="text">IO 0<br>#ext0_toggle</span></div></div>
+
+<div class="area" style="height:8%;width:50%;font-size:5vmin;"><div class="button" id="memorize_select" style="border:solid;border-radius:1px;background-color:#FFFFFF;color:#000000;" onclick="memorize_select()"><span class="text">Memorize Menu</span></div></div>
+<div class="area" style="height:8%;width:50%;font-size:5vmin;"><div class="button" id="play_select" style="border:none;border-radius:1px;background-color:#EEEEEE;color:#555555;" onclick="play_select()"><span class="text">Play Menu</span></div></div>
+
+<div class="area" id="memorize_menu" style="height:37%;">
+  <div class="area" style="height:14%;width:65%;font-size:4vmin;"><input type="checkbox" id="teachBack"><label for="teachBack">teachBack</label></div>
+  <div class="area" style="height:14%;width:35%;font-size:3vmin;"><div class="button" onclick="publishCmdParam('memory-cancel', '');"><span class="text">Memorize Cancel</span></div></div>
+
+  <div class="area" style="height:19%;width:75%;font-size:3vmin;"><div class="button" onclick="publishCmd('#pause#pauseset_' + document.getElementById('time').value + '#run')"><span class="text">Set Pause Fixed Seconds (0-86400) -&gt;</span></div></div>
+  <div class="area" style="height:19%;width:25%;font-size:3vmin;"><input id="time" type="number" style="height:100%;font-size:4vmin;width:100%;box-sizing:border-box;" value="0" min="0" max="86400" step="1"></div>
+
+  <div class="area" style="height:18%;font-size:3vmin;"><div class="button" onclick="publishCmd('#set_suspend')"><span class="text">HOLD #set_suspend</span></div></div>
+
+  <div class="area" style="height:30%;font-size:3vmin;"><div class="button" onclick="publishCmd('#set_accuracy')"><span class="text">ACCURACY STOP #set_accuracy<br>(PAUSE or HLOD to end at stop point)</span></div></div>
+
+  <div class="area" style="height:18%;width:50%;font-size:3vmin;"><div class="button" onclick="publishCmd('#set_obstacle_off')"><span class="text">#set_obstacle_off</span></div></div>
+  <div class="area" style="height:18%;width:50%;font-size:3vmin;"><div class="button" onclick="publishCmd('#set_obstacle_on')"><span class="text">#set_obstacle_on</span></div></div>
+</div>
+
+<div class="area" id="play_menu" style="height:37%;display:none;">
+  <div class="area" style="height:14%;width:14%;font-size:4vmin;"><input type="checkbox" id="loop"><label for="loop">loop</label></div>
+  <div class="area" style="height:14%;width:20%;font-size:4vmin;"><input type="checkbox" id="reverse"><label for="reverse">reverse</label></div>
+  <div class="area" style="height:14%;width:20%;font-size:4vmin;"><input type="checkbox" id="rewind"><label for="rewind">rewind</label></div>
+
+  <div class="area" style="height:14%;width:23%;font-size:4vmin;"><span id="alarm_t">alarm:---</span></div>
+  <div class="area" style="height:14%;width:23%;font-size:4vmin;"><span id="alert_t">alert:---</span></div>
+
+  <div id="details" style="overflow-y:scroll;font-size:3vmin;width:100%;height:86%;"><br><b>*** Details of Indicator and Memorytrace ***</b></div>
+</div>
+
+</body>
+</html>

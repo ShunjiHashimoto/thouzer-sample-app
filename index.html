@@ -82,16 +82,47 @@
 
     <hr>
 
-    <div style="font-size:120%;margin-bottom:5px;"><b>Additional Samples</b></div>
-    nothing yet.<br>
-    
+    <div style="font-size:160%;margin-bottom:5px;"><b>Additional Samples</b></div>
+    <a href="DNE4.8.1.0.1-v20240111/additional/autostart-blink.html">Blinking Indicator Light(DNE4.8.1.0.0 or later, autostart JS)</a><br>
+    <a href="DNE4.8.1.0.1-v20240111/additional/autostart-low-battery.html">Blinking Indicator Light when battery low level.(DNE4.8.1.0.0 or later, autostart JS)</a><br>
+    <br>
+    [notice]<br>
+    A JavaScript app that will activated  after 10 seconds of the robot boot up. Please place html file to /data/html/autostart.html.<br>
     <hr>
 
-    <div style="font-size:120%;margin-bottom:5px;"><b>Installed Samples</b></div>
-    <a href="DNE4.8.0.4.4-v20230406/app">DNE4.8.0.4.4-v20230406</a><br>
+    <div style="font-size:160%;margin-bottom:5px;"><b>Pre-Installed Samples/API release note</b></div>
+
+    <b><a href="DNE5.0.0.0.0-v20240115/app">DNE5.0.0.0.0-v20240115</a></b><br>
+    [notice]<br>
+    <span style="color:#FF4444">Beta version, not release/install version for Thozuer E-series</span><br>
+    [What's New for MQTT API and Web bases UI application]<br>
+    - The calculation of Highway Code Marker quality score has been changed,
+    recommended value change to 70 or higher(previous version was 100 or higher).<br>
+    
+    - MemoryTrace's commands, "memory-start-cancel" has been removed.<br>
+    　New command memory-start added for start memorize.<br>
+    　If memorize is already in progress, "memory-start" command canceled on-going and start a new memorization.<br>
+    
+    - DNE(Doog Navigation Engine) now supports DNS. The nameserver refers to 192.168.212.50, so set DNE to the router setting.<br>
+
+    - New MQTT topic 0/THOUZER_HW/[robot_serial]/indicator/app added, to provide alarm, alert, and error information.<br>
+    -- If #success and #alert are not issued when the application ends, #end will be issued, and #successHold will be issued for Memorized Hold.<br>
+    -- Some items has been added to the /event/app topic to notify the line-trace navigation status.<br>
+    
+    - sample application UI has been renewd.<br>
+    <br>
+    <b><a href="DNE4.8.1.0.1-v20240111/app">DNE4.8.1.0.1-v20240111</a></b><br>
+    [What's New for MQTT API and Web bases UI application]<br>
+    Solved the minor bug of autostart JS app. Added a procedure to the beep() function in client_dne_lib.js to prevent the sound from playing from the browser terminal.<br>
+    A command has been added that does not sound beep on the DNE side related to #ext345. (The command is used in the Additional autostart Sample above.<br>
+    lient_dne_lib.js can now support encrypted SSL. Please write wss:// before the server address. You can use terminal or web server which limited to HTTPS.<br>
+    However, DNE's MQTT client is not supported SSL, so please use a broker that supports both TCP and SSL connections.
+    <br>
+    <br>
+    <b><a href="DNE4.8.0.4.4-v20230406/app">DNE4.8.0.4.4-v20230406</a></b><br>
     [notice]<br>
     Does not support encrypted TLS/SSL connection of MQTT, and can only use fixed IP broker.<br>
-    This page is <span id="protocol"></span>.    
+    This page is using <span id="protocol"></span>.
     <hr>
 
     Doog Inc.
