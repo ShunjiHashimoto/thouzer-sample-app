@@ -23,22 +23,20 @@
             document.getElementById("BA" + changeLevel).style.fontWeight = "bold";
         }
         function subscribeParse(message){
-            if(message.destinationName == "0/WHISPERER/" + type_and_serial + "/battery"){
-                const from_json = JSON.parse(message.payloadString);
-                if(from_json.gauge != null){
-                    var gauge = Number(from_json.gauge);
-                    document.getElementById("BA10").style.backgroundColor = (gauge >= 10)?"#00FF00":"#FFFFFF";
-                    document.getElementById("BA9").style.backgroundColor = (gauge >= 9)?"#00FF00":"#FFFFFF";
-                    document.getElementById("BA8").style.backgroundColor = (gauge >= 8)?"#00FF00":"#FFFFFF";
-                    document.getElementById("BA7").style.backgroundColor = (gauge >= 7)?"#FFD700":"#FFFFFF";
-                    document.getElementById("BA6").style.backgroundColor = (gauge >= 6)?"#FFD700":"#FFFFFF";
-                    document.getElementById("BA5").style.backgroundColor = (gauge >= 5)?"#FFD700":"#FFFFFF";
-                    document.getElementById("BA4").style.backgroundColor = (gauge >= 4)?"#FFD700":"#FFFFFF";
-                    document.getElementById("BA3").style.backgroundColor = (gauge >= 3)?"#FF0000":"#FFFFFF";
-                    document.getElementById("BA2").style.backgroundColor = (gauge >= 2)?"#FF0000":"#FFFFFF";
-                    document.getElementById("BA1").style.backgroundColor = (gauge >= 1)?"#FF0000":"#FFFFFF";
-                    if(first == 0) change = (gauge <= changeLevel);
-                }
+            const from_json = JSON.parse(message.payloadString);
+            if(message.destinationName == "0/WHISPERER/" + type_and_serial + "/battery" && from_json.gauge != null){
+                var gauge = Number(from_json.gauge);
+                document.getElementById("BA10").style.backgroundColor = (gauge >= 10)?"#00FF00":"#FFFFFF";
+                document.getElementById("BA9").style.backgroundColor = (gauge >= 9)?"#00FF00":"#FFFFFF";
+                document.getElementById("BA8").style.backgroundColor = (gauge >= 8)?"#00FF00":"#FFFFFF";
+                document.getElementById("BA7").style.backgroundColor = (gauge >= 7)?"#FFD700":"#FFFFFF";
+                document.getElementById("BA6").style.backgroundColor = (gauge >= 6)?"#FFD700":"#FFFFFF";
+                document.getElementById("BA5").style.backgroundColor = (gauge >= 5)?"#FFD700":"#FFFFFF";
+                document.getElementById("BA4").style.backgroundColor = (gauge >= 4)?"#FFD700":"#FFFFFF";
+                document.getElementById("BA3").style.backgroundColor = (gauge >= 3)?"#FF0000":"#FFFFFF";
+                document.getElementById("BA2").style.backgroundColor = (gauge >= 2)?"#FF0000":"#FFFFFF";
+                document.getElementById("BA1").style.backgroundColor = (gauge >= 1)?"#FF0000":"#FFFFFF";
+                if(first == 0) change = (gauge <= changeLevel);
             }
         }
         setInterval("send()", 250);
