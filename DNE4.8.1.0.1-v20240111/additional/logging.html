@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;touch-action:none;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <!-- <link rel="stylesheet" href="../default.css"> for DNE5 -->
+    <link rel="stylesheet" href="../app/style.css">
+    <title>Connecting...</title>
+    <script>
+        var robot_log = null;
+        var prev = "", prev_start = "", prev_m = 0;
+        var tDist_m = -1, tAngle_deg = -1;
+        var battery_times = 0;
+        var battery = 0;
+        var bl_times = 0, bl_t = {hour: 0, msec: 0};
+        var app = ["app-userInput", "app-karugamo", "app-linetrace", "app-memorytrace"];
+        var app_times = [0, 0, 0, 0];
+        var app_m = [0, 0, 0, 0];
+        var app_t = [{hour: 0, msec: 0}, {hour: 0, msec: 0}, {hour: 0, msec: 0}, {hour: 0, msec: 0}];
+        function toLocalDate(date){
+            return date.getFullYear() + "-" + ('0' + (date.getMonth() + 1)).slice(-2) + "-" + ('0' + date.getDate()).slice(-2) + "T" + ('0' + date.getHours()).slice(-2) + ":" + ('0' + date.getMinutes()).slice(-2) + ":" + ('0' + date.getSeconds()).slice(-2);
+        }
+        function addLog(text){
+            robot_log = robot_log + text;
+            window.localStorage.setItem("robot_log", robot_log);
+        }
+        function addTime(t, add){
+            t.msec += add;
+            while(t.msec >= 3600000){
+                t.msec -= 3600000;
+                ++t.hour;
+            }
+        }
+        function loadFunc(){
+            if(typeof localStorage === 'undefined'){
+                document.getElementById("bl_name").innerText = "logging & boot (without localStorage)";
+            }
+            robot_log = window.localStorage.getItem("robot_log");
+            if(robot_log === null) robot_log = "";
+            var previous_running = window.localStorage.getItem("previous_running");
+            if(previous_running !== null){
+                window.localStorage.removeItem("previous_running");
+                addLog(previous_running);
+            }
+            var previous_logging = window.localStorage.getItem("previous_logging");
+            if(previous_logging !== null){
+                window.localStorage.removeItem("previous_logging");
+                addLog(previous_logging + ",logging stop\n");
+            }
+            setInterval(function(){
+                window.localStorage.setItem("previous_logging", toLocalDate(new Date()));
+                if(prev != ""){
+                    window.localStorage.setItem("previous_running", toLocalDate(new Date()) + "," + prev + " unknown," + tDist_m + "," + tAngle_deg + "\n");
+                }else{
+                    window.localStorage.removeItem("previous_running");
+                }
+            }, 500);
+            addLog(toLocalDate(new Date()) + ",logging start\n");
+            document.getElementById("bl_name").style.backgroundColor = "lightpink";
+            document.getElementById("app-userInput").style.backgroundColor = "lightpink";
+            document.getElementById("app-karugamo").style.backgroundColor = "lightpink";
+            document.getElementById("app-linetrace").style.backgroundColor = "lightpink";
+            document.getElementById("app-memorytrace").style.backgroundColor = "lightpink";
+
+            var robot_log_s = robot_log.split(/\n/);
+            var bl_start = "", start_app = "", start_m = 0;
+            var title = false;
+            for(var t of robot_log_s){
+                var pos = t.indexOf(",");
+                if(pos < 0) continue;
+                if(t.substring(pos+1, pos+1+7+6) == "logging start"){
+                    ++bl_times;
+                    bl_start = t.substring(0, pos);
+                    if(title == false){ title = true; document.getElementById("bl_name").innerText = "logging & boot (from " + bl_start + ")"; }
+                }
+                if(t.substring(pos+1, pos+1+7+5) == "logging stop"){
+                    if(bl_start != "") addTime(bl_t, new Date(t.substring(0, pos).replace("T"," ")) - new Date(bl_start.replace("T"," ")));
+                    if(start_app != ""){
+                        addTime(app_t[i], new Date(t.substring(0, pos).replace("T"," ")) - new Date(start_app.replace("T"," ")));
+                        var pos2 = t.substring(pos+1).indexOf(",") + (pos+1);
+                        var pos3 = t.substring(pos2+1).indexOf(",") + (pos2+1);
+                        if(pos2 >= 0 && pos3 >= 0) app_m[i] += Number(t.substring(pos2+1, pos3)) - Number(start_m);
+                    }
+                    bl_start = start_app = "";
+                }
+                for(var i=0;i<app.length;++i){
+                    if(t.substring(pos+1, pos+1+app[i].length+6) == app[i] + " start"){
+                        ++app_times[i];
+                        start_app = t.substring(0, pos);
+                        var pos2 = t.substring(pos+1).indexOf(",") + (pos+1);
+                        var pos3 = t.substring(pos2+1).indexOf(",") + (pos2+1);
+                        if(pos2 >= 0 && pos3 >= 0) start_m = t.substring(pos2+1, pos3);
+                    }
+                    if(t.substring(pos+1, pos+1+app[i].length+5) == app[i] + " stop" || t.substring(pos+1, pos+1+app[i].length+8) == app[i] + " unknown"){
+                        if(start_app != ""){
+                            addTime(app_t[i], new Date(t.substring(0, pos).replace("T"," ")) - new Date(start_app.replace("T"," ")));
+                            var pos2 = t.substring(pos+1).indexOf(",") + (pos+1);
+                            var pos3 = t.substring(pos2+1).indexOf(",") + (pos2+1);
+                            if(pos2 >= 0 && pos3 >= 0) app_m[i] += Number(t.substring(pos2+1, pos3)) - Number(start_m);
+                        }
+                        start_app = "";
+                    }
+                }
+                if(t.substring(pos+1, pos+8) == "battery") ++battery_times;
+            }
+            updateView();
+        }
+        function save(){
+            if(prev != "") addLog(toLocalDate(new Date()) + "," + prev + " run," + tDist_m + "," + tAngle_deg + "\n");
+            addLog(toLocalDate(new Date()) + ",logging suspend\n");
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([robot_log],{type:"text/plain"}));
+            link.download = "log-" + toLocalDate(new Date()) + ".csv";
+            link.click();
+            if(window.confirm("Do you want to clear the log after save?\n(Note : Distances may vary depending on the robot and conditions.)")){
+                window.localStorage.removeItem('robot_log');
+                robot_log = "";
+                battery_times = 0;
+                battery = 0;
+                bl_times = bl_t.hour = bl_t.msec = 0;
+                var t = toLocalDate(new Date());
+                addLog(t + ",logging start\n");
+                if(typeof localStorage !== 'undefined') document.getElementById("bl_name").innerText = "logging & boot (from " + t + ")";
+            }else{
+                addLog(toLocalDate(new Date()) + ",logging resume\n");
+            }
+            updateView();
+        }
+        function dummy(){ }
+        function updateView(){
+            var len = robot_log.length;
+            document.getElementById("save").innerText = "Save " + len + " bytes";
+
+            document.getElementById("bl_times").innerText = bl_times;
+            document.getElementById("battery_times").innerText = battery_times;
+            document.getElementById("bl_hour").innerText = bl_t.hour;
+            document.getElementById("bl_minute").innerText = Math.trunc(bl_t.msec / 60000);
+            document.getElementById("bl_second").innerText = Math.trunc(bl_t.msec / 1000) % 60;
+
+            document.getElementById("ui_times").innerText = app_times[0];
+            document.getElementById("ui_meter").innerText = Math.trunc(app_m[0]);
+            document.getElementById("ui_hour").innerText = app_t[0].hour;
+            document.getElementById("ui_minute").innerText = Math.trunc(app_t[0].msec / 60000);
+            document.getElementById("ui_second").innerText = Math.trunc(app_t[0].msec / 1000) % 60;
+
+            document.getElementById("fm_times").innerText = app_times[1];
+            document.getElementById("fm_meter").innerText = Math.trunc(app_m[1]);
+            document.getElementById("fm_hour").innerText = app_t[1].hour;
+            document.getElementById("fm_minute").innerText = Math.trunc(app_t[1].msec / 60000);
+            document.getElementById("fm_second").innerText = Math.trunc(app_t[1].msec / 1000) % 60;
+
+            document.getElementById("lt_times").innerText = app_times[2];
+            document.getElementById("lt_meter").innerText = Math.trunc(app_m[2]);
+            document.getElementById("lt_hour").innerText = app_t[2].hour;
+            document.getElementById("lt_minute").innerText = Math.trunc(app_t[2].msec / 60000);
+            document.getElementById("lt_second").innerText = Math.trunc(app_t[2].msec / 1000) % 60;
+
+            document.getElementById("mt_times").innerText = app_times[3];
+            document.getElementById("mt_meter").innerText = Math.trunc(app_m[3]);
+            document.getElementById("mt_hour").innerText = app_t[3].hour;
+            document.getElementById("mt_minute").innerText = Math.trunc(app_t[3].msec / 60000);
+            document.getElementById("mt_second").innerText = Math.trunc(app_t[3].msec / 1000) % 60;
+        }
+        function onConnected(){
+            subscribe("0/THOUZER_HW/" + type_and_serial + "/status/app"); //changed
+            subscribe("0/WHISPERER/" + type_and_serial + "/pos2D_DWO"); //default 1 sec
+            subscribe("0/WHISPERER/" + type_and_serial + "/battery"); //default 1 sec
+        }
+        function subscribeParse(message){
+            const from_json = JSON.parse(message.payloadString);
+            if(message.destinationName == "0/THOUZER_HW/" + type_and_serial + "/status/app" && from_json.app != null){
+                var next = "";
+                if(from_json.app.indexOf("./bin/app-userInput") == 0) next = "app-userInput";
+                if(from_json.app.indexOf("./bin/app-karugamo") == 0) next = "app-karugamo";
+                if(from_json.app.indexOf("./bin/app-linetrace") == 0) next = "app-linetrace";
+                if(from_json.app.indexOf("./bin/app-memorytrace") == 0) next = "app-memorytrace";
+                if(from_json.app.substring(0, 1) == "#" || next != ""){
+                    document.getElementById("bl_name").style.backgroundColor = "lightgreen";
+                    document.getElementById("app-userInput").style.backgroundColor = "white";
+                    document.getElementById("app-karugamo").style.backgroundColor = "white";
+                    document.getElementById("app-linetrace").style.backgroundColor = "white";
+                    document.getElementById("app-memorytrace").style.backgroundColor = "white";
+                    if(prev != "" && prev_start != ""){
+                        var now_t = toLocalDate(new Date());
+                        var now_m = tDist_m;
+                        addLog(now_t + "," + prev + " stop," + now_m + "," + tAngle_deg + "\n");
+                        for(var i=0;i<app.length;++i) if(prev == app[i]){
+                            addTime(app_t[i], new Date(now_t.replace("T"," ")) - new Date(prev_start.replace("T"," ")));
+                            app_m[i] += now_m - prev_m;
+                        }
+                        prev = prev_start = "";
+                    }
+                    if(from_json.app == "#idle" || from_json.app.indexOf("#finish") == 0){
+                        addLog(toLocalDate(new Date()) + "," + from_json.app + "\n");
+                        ++bl_times;
+                    }
+                }
+                if(next != ""){
+                    prev_start = toLocalDate(new Date());
+                    prev = next;
+                    prev_m = tDist_m;
+                    addLog(prev_start + "," + prev + " start," + prev_m + "," + tAngle_deg + "\n");
+                    for(var i=0;i<app.length;++i) if(prev == app[i]) ++app_times[i];
+                    document.getElementById("bl_name").style.backgroundColor = "white";
+                    document.getElementById(prev).style.backgroundColor = "lightgreen";
+                }
+                updateView();
+            }
+            if(message.destinationName == "0/WHISPERER/" + type_and_serial + "/pos2D_DWO" && from_json.tDist_m != null && from_json.tAngle_deg != null){
+                tDist_m = from_json.tDist_m;
+                tAngle_deg = from_json.tAngle_deg;
+            }
+            if(message.destinationName == "0/WHISPERER/" + type_and_serial + "/battery" && from_json.gauge != null){
+                if(battery != Number(from_json.gauge)){
+                    addLog(toLocalDate(new Date()) + ",battery," + Number(from_json.gauge) + "\n");
+                    ++battery_times;
+                    updateView();
+                    battery = Number(from_json.gauge);
+               }
+             }
+        }
+    </script>
+</head>
+<body style="height:100%;margin:0;" onload="loadFunc();tryConnectFirst();">
+<div id="status" class="area" style="height:8%;font-size:6vmin;">Connecting...</div>
+
+<div class="area" style="height:7%;width:100%;font-size:4vmin;"><div class="button" onclick="save()"><span class="text" id="save">Save 0 bytes</span></div></div>
+
+<div class="area" style="height:17%;width:100%;">
+  <div style="height:40%;width:100%;float:left;font-size:4vmin;border-top:1px solid black;box-sizing:border-box;" id="bl_name">logging & boot</div>
+  <div style="height:60%;width:100%;float:left;">
+    <div style="height:100%;width:34%;float:left;"><span style="font-size:6vmin;" id="bl_times">0</span><span style="font-size:3vmin;"> times</span></div>
+    <div style="height:100%;width:31%;float:left;"><span style="font-size:6vmin;" id="battery_times">0</span><span style="font-size:3vmin;"> battery</span></div>
+    <div style="height:100%;width:35%;float:left;"><span style="font-size:6vmin;" id="bl_hour">00</span><span style="font-size:3vmin;"> h </span><span style="font-size:6vmin;" id="bl_minute">0</span><span style="font-size:3vmin;"> m </span><span style="font-size:6vmin;" id="bl_second">0</span><span style="font-size:3vmin;"> s</span></div>
+  </div>
+</div>
+<div class="area" style="height:17%;width:100%;">
+  <div style="height:40%;width:100%;float:left;font-size:4vmin;border-top:1px solid black;box-sizing:border-box;" id="app-userInput">app-userInput</div>
+  <div style="height:60%;width:100%;float:left;">
+    <div style="height:100%;width:34%;float:left;"><span style="font-size:6vmin;" id="ui_times">0</span><span style="font-size:3vmin;"> times</span></div>
+    <div style="height:100%;width:31%;float:left;"><span style="font-size:6vmin;" id="ui_meter">0</span><span style="font-size:3vmin;"> m</span></div>
+    <div style="height:100%;width:35%;float:left;"><span style="font-size:6vmin;" id="ui_hour">00</span><span style="font-size:3vmin;"> h </span><span style="font-size:6vmin;" id="ui_minute">0</span><span style="font-size:3vmin;"> m </span><span style="font-size:6vmin;" id="ui_second">0</span><span style="font-size:3vmin;"> s</span></div>
+  </div>
+</div>
+<div class="area" style="height:17%;width:100%;">
+  <div style="height:40%;width:100%;float:left;font-size:4vmin;border-top:1px solid black;box-sizing:border-box;" id="app-karugamo">FM : app-karugamo</div>
+  <div style="height:60%;width:100%;float:left;">
+    <div style="height:100%;width:34%;float:left;"><span style="font-size:6vmin;" id="fm_times">0</span><span style="font-size:3vmin;"> times</span></div>
+    <div style="height:100%;width:31%;float:left;"><span style="font-size:6vmin;" id="fm_meter">0</span><span style="font-size:3vmin;"> m</span></div>
+    <div style="height:100%;width:35%;float:left;"><span style="font-size:6vmin;" id="fm_hour">00</span><span style="font-size:3vmin;"> h </span><span style="font-size:6vmin;" id="fm_minute">0</span><span style="font-size:3vmin;"> m </span><span style="font-size:6vmin;" id="fm_second">0</span><span style="font-size:3vmin;"> s</span></div>
+  </div>
+</div>
+<div class="area" style="height:17%;width:100%;">
+  <div style="height:40%;width:100%;float:left;font-size:4vmin;border-top:1px solid black;box-sizing:border-box;" id="app-linetrace">LT : app-linetrace</div>
+  <div style="height:60%;width:100%;float:left;">
+    <div style="height:100%;width:34%;float:left;"><span style="font-size:6vmin;" id="lt_times">0</span><span style="font-size:3vmin;"> times</span></div>
+    <div style="height:100%;width:31%;float:left;"><span style="font-size:6vmin;" id="lt_meter">0</span><span style="font-size:3vmin;"> m</span></div>
+    <div style="height:100%;width:35%;float:left;"><span style="font-size:6vmin;" id="lt_hour">00</span><span style="font-size:3vmin;"> h </span><span style="font-size:6vmin;" id="lt_minute">0</span><span style="font-size:3vmin;"> m </span><span style="font-size:6vmin;" id="lt_second">0</span><span style="font-size:3vmin;"> s</span></div>
+  </div>
+</div>
+<div class="area" style="height:17%;width:100%;">
+  <div style="height:40%;width:100%;float:left;font-size:4vmin;border-top:1px solid black;box-sizing:border-box;" id="app-memorytrace">MT : app-memorytrace</div>
+  <div style="height:60%;width:100%;float:left;">
+    <div style="height:100%;width:34%;float:left;"><span style="font-size:6vmin;" id="mt_times">0</span><span style="font-size:3vmin;"> times</span></div>
+    <div style="height:100%;width:31%;float:left;"><span style="font-size:6vmin;" id="mt_meter">0</span><span style="font-size:3vmin;"> m</span></div>
+    <div style="height:100%;width:35%;float:left;"><span style="font-size:6vmin;" id="mt_hour">00</span><span style="font-size:3vmin;"> h </span><span style="font-size:6vmin;" id="mt_minute">0</span><span style="font-size:3vmin;"> m </span><span style="font-size:6vmin;" id="mt_second">0</span><span style="font-size:3vmin;"> s</span></div>
+  </div>
+</div>
+
+</body>
+</html>
