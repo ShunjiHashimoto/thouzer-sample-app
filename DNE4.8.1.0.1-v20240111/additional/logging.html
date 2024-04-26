@@ -14,7 +14,6 @@
         var robot_log = null;
         var prev = "", prev_start = "", prev_m = 0;
         var tDist_m = -1, tAngle_deg = -1;
-        var battery_times = 0;
         var battery = 0;
         var bl_times = 0, bl_t = {hour: 0, msec: 0};
         var app = ["app-userInput", "app-karugamo", "app-linetrace", "app-memorytrace"];
@@ -59,7 +58,7 @@
                     window.localStorage.removeItem("previous_running");
                 }
             }, 500);
-            addLog(toLocalDate(new Date()) + ",logging start\n");
+            addLog(toLocalDate(new Date()) + ",logging start," + type_and_serial + "\n");
             document.getElementById("bl_name").style.backgroundColor = "lightpink";
             document.getElementById("app-userInput").style.backgroundColor = "lightpink";
             document.getElementById("app-karugamo").style.backgroundColor = "lightpink";
@@ -83,7 +82,10 @@
                         addTime(app_t[i], new Date(t.substring(0, pos).replace("T"," ")) - new Date(start_app.replace("T"," ")));
                         var pos2 = t.substring(pos+1).indexOf(",") + (pos+1);
                         var pos3 = t.substring(pos2+1).indexOf(",") + (pos2+1);
-                        if(pos2 >= 0 && pos3 >= 0) app_m[i] += Number(t.substring(pos2+1, pos3)) - Number(start_m);
+                        if(pos2 >= 0 && pos3 >= 0){
+                            var diff = Number(t.substring(pos2+1, pos3)) - Number(start_m);
+                            if(diff > 0) app_m[i] += diff;
+                        }
                     }
                     bl_start = start_app = "";
                 }
@@ -100,12 +102,14 @@
                             addTime(app_t[i], new Date(t.substring(0, pos).replace("T"," ")) - new Date(start_app.replace("T"," ")));
                             var pos2 = t.substring(pos+1).indexOf(",") + (pos+1);
                             var pos3 = t.substring(pos2+1).indexOf(",") + (pos2+1);
-                            if(pos2 >= 0 && pos3 >= 0) app_m[i] += Number(t.substring(pos2+1, pos3)) - Number(start_m);
+                            if(pos2 >= 0 && pos3 >= 0){
+                                var diff = Number(t.substring(pos2+1, pos3)) - Number(start_m);
+                                if(diff > 0) app_m[i] += diff;
+                            }
                         }
                         start_app = "";
                     }
                 }
-                if(t.substring(pos+1, pos+8) == "battery") ++battery_times;
             }
             updateView();
         }
@@ -119,11 +123,10 @@
             if(window.confirm("Do you want to clear the log after save?\n(Note : Distances may vary depending on the robot and conditions.)")){
                 window.localStorage.removeItem('robot_log');
                 robot_log = "";
-                battery_times = 0;
                 battery = 0;
                 bl_times = bl_t.hour = bl_t.msec = 0;
                 var t = toLocalDate(new Date());
-                addLog(t + ",logging start\n");
+                addLog(t + ",logging start," + type_and_serial + "\n");
                 if(typeof localStorage !== 'undefined') document.getElementById("bl_name").innerText = "logging & boot (from " + t + ")";
             }else{
                 addLog(toLocalDate(new Date()) + ",logging resume\n");
@@ -136,7 +139,6 @@
             document.getElementById("save").innerText = "Save " + len + " bytes";
 
             document.getElementById("bl_times").innerText = bl_times;
-            document.getElementById("battery_times").innerText = battery_times;
             document.getElementById("bl_hour").innerText = bl_t.hour;
             document.getElementById("bl_minute").innerText = Math.trunc(bl_t.msec / 60000);
             document.getElementById("bl_second").innerText = Math.trunc(bl_t.msec / 1000) % 60;
@@ -190,13 +192,14 @@
                         addLog(now_t + "," + prev + " stop," + now_m + "," + tAngle_deg + "\n");
                         for(var i=0;i<app.length;++i) if(prev == app[i]){
                             addTime(app_t[i], new Date(now_t.replace("T"," ")) - new Date(prev_start.replace("T"," ")));
-                            app_m[i] += now_m - prev_m;
+                            if(now_m > prev_m) app_m[i] += now_m - prev_m;
                         }
                         prev = prev_start = "";
                     }
                     if(from_json.app == "#idle" || from_json.app.indexOf("#finish") == 0){
                         addLog(toLocalDate(new Date()) + "," + from_json.app + "\n");
                         ++bl_times;
+                        tDist_m = tAngle_deg = 0;
                     }
                 }
                 if(next != ""){
@@ -217,7 +220,6 @@
             if(message.destinationName == "0/WHISPERER/" + type_and_serial + "/battery" && from_json.gauge != null){
                 if(battery != Number(from_json.gauge)){
                     addLog(toLocalDate(new Date()) + ",battery," + Number(from_json.gauge) + "\n");
-                    ++battery_times;
                     updateView();
                     battery = Number(from_json.gauge);
                }
@@ -233,8 +235,7 @@
 <div class="area" style="height:17%;width:100%;">
   <div style="height:40%;width:100%;float:left;font-size:4vmin;border-top:1px solid black;box-sizing:border-box;" id="bl_name">logging & boot</div>
   <div style="height:60%;width:100%;float:left;">
-    <div style="height:100%;width:34%;float:left;"><span style="font-size:6vmin;" id="bl_times">0</span><span style="font-size:3vmin;"> times</span></div>
-    <div style="height:100%;width:31%;float:left;"><span style="font-size:6vmin;" id="battery_times">0</span><span style="font-size:3vmin;"> battery</span></div>
+    <div style="height:100%;width:65%;float:left;"><span style="font-size:6vmin;" id="bl_times">0</span><span style="font-size:3vmin;"> times</span></div>
     <div style="height:100%;width:35%;float:left;"><span style="font-size:6vmin;" id="bl_hour">00</span><span style="font-size:3vmin;"> h </span><span style="font-size:6vmin;" id="bl_minute">0</span><span style="font-size:3vmin;"> m </span><span style="font-size:6vmin;" id="bl_second">0</span><span style="font-size:3vmin;"> s</span></div>
   </div>
 </div>
