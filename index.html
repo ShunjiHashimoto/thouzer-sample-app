@@ -100,43 +100,55 @@
 
     <div style="font-size:160%;margin-bottom:5px;"><b>Pre-Installed Samples/API release note</b></div>
 
+    <b><a href="DNE5.0.2.0.0-v20240514/app">DNE5.0.2.0.0-v20240514</a></b><br>
+    <span style="color:#FF4444">Not release/install version for Thozuer E-series</span><br>
+    [What's New for MQTT API and Web bases UI application]<br>
+    <ul style="margin-top:3px;margin-bottom:3px;">
+        <li>List of the Highway-Multi-Button and Advanced-LineTrace, the 700-707 were changed to the 000-007.</li>
+        <li>The "client_dne_lib.js" has been modified, and most sample apps now use subscribeParsed() instead of subscribeParse().</li>
+        <li>DNE changed. When the joystick module's power button was pressed to terminate normally, "applicationWorking" was notified as #default, but this has been changed to #start. The purpose is to set all IO3-5 to L when there is no error, and turn off the melody device and indicator light.</li>
+    </ul>
+    <br>
     <b><a href="DNE5.0.1.1.0-v20240301/app">DNE5.0.1.1.0-v20240301</a></b> (more stable than DNE5.0.1.0.0-v20240225)<br>
     <span style="color:#FF4444">Not release/install version for Thozuer E-series</span><br>
     [What's New for MQTT API and Web bases UI application]<br>
-    - MemoryTrace's commands, "memory-start-cancel" restored and deprecated. "memory-start" and "memory-cancel" are recommended.<br>
-    - app-userInput-stick.html solves the problem of models (such as Mecharon) where the speed mode is reset by the joystick manual function.<br>
+    <ul style="margin-top:3px;margin-bottom:3px;">
+        <li>MemoryTrace's commands, "memory-start-cancel" restored and deprecated. "memory-start" and "memory-cancel" are recommended.</li>
+        <li>app-userInput-stick.html solves the problem of models (such as Mecharon) where the speed mode is reset by the joystick manual function.</li>
+    </ul>
     <br>
     <b><a href="DNE5.0.0.0.0-v20240115/app">DNE5.0.0.0.0-v20240115</a></b><br>
     <span style="color:#FF4444">Not release/install version for Thozuer E-series</span><br>
     [What's New for MQTT API and Web bases UI application]<br>
-    - The calculation of Highway Code Marker quality score has been changed, recommended value change to 70 or higher(previous version was 100 or higher).<br>
-    - Previously, "style.css" was placed in the same directory as the sample app, but from now on it will be referenced as "../default.css" in the directory one level above.<br>
-    
-    - MemoryTrace's commands, "memory-start-cancel" has been removed. However, it will be restored and deprecated in the next version.<br>
-    - New command "memory-start" added for start memorize. If memorize is already in progress, it cancels and starts a new memorize.<br>
-    
-    - DNE(Doog Navigation Engine) now supports DNS. The nameserver refers to 192.168.212.50, so set DNE to the router setting.<br>
-
-    - New MQTT topic 0/THOUZER_HW/[robot_serial]/indicator/app added, to provide alarm, alert, and error information.<br>
-    -- If #success and #alert are not issued when the application ends, #end will be issued, and #successHold will be issued for Memorized Hold.<br>
-    -- Some items has been added to the /event/app topic to notify the line-trace navigation status.<br>
-    
-    - sample application UI has been renewd.<br>
+    <ul style="margin-top:3px;margin-bottom:3px;">
+        <li>The calculation of Highway Code Marker quality score has been changed, recommended value change to 70 or higher(previous version was 100 or higher).</li>
+        <li>Previously, "style.css" was placed in the same directory as the sample app, but from now on it will be referenced as "../default.css" in the directory one level above.</li>
+        <li>MemoryTrace's commands, "memory-start-cancel" has been removed. However, it will be restored and deprecated in the next version.</li>
+        <li>New command "memory-start" added for start memorize. If memorize is already in progress, it cancels and starts a new memorize.</li>
+        <li>DNE now supports DNS. The nameserver refers to 192.168.212.50, so set DNE to the router setting.</li>
+        <li>New MQTT topic 0/THOUZER_HW/[robot_serial]/indicator/app added, to provide alarm, alert, and error information.<br>
+            If #success and #alert are not issued when the application ends, #end will be issued, and #successHold will be issued for Memorized Hold.<br>
+            Some items has been added to the /event/app topic to notify the line-trace navigation status.</li>
+        <li>sample application UI has been renewd.</li>
+    </ul>
     <br>
     <b><a href="DNE4.8.1.0.1-v20240111/app">DNE4.8.1.0.1-v20240111</a></b><br>
     [What's New for MQTT API and Web bases UI application]<br>
-    Solved the minor bug of autostart JS app. Added a procedure to the beep() function in client_dne_lib.js to prevent the sound from playing from the browser terminal.<br>
-    A command has been added that does not sound beep on the DNE side related to #ext345. (The command is used in the Additional autostart Sample above.<br>
-    lient_dne_lib.js can now support encrypted SSL. Please write wss:// before the server address. You can use terminal or web server which limited to HTTPS.<br>
-    However, DNE's MQTT client is not supported SSL, so please use a broker that supports both TCP and SSL connections.
-    <br>
+    <ul style="margin-top:3px;margin-bottom:3px;">
+        <li>Solved the minor bug of autostart JS app. Added a procedure to the beep() function in client_dne_lib.js to prevent the sound from playing from the browser terminal.</li>
+        <li>A command has been added that does not sound beep on the DNE side related to #ext345. (The command is used in the Additional autostart Sample above.</li>
+        <li>client_dne_lib.js can now support encrypted SSL. Please write wss:// before the server address. You can use terminal or web server which limited to HTTPS.<br>
+            However, DNE's MQTT client is not supported SSL, so please use a broker that supports both TCP and SSL connections.</li>
+    </ul>
     <br>
     <b><a href="DNE4.8.0.4.4-v20230406/app">DNE4.8.0.4.4-v20230406</a></b><br>
     [notice]<br>
-    Does not support encrypted TLS/SSL connection of MQTT, and can only use fixed IP broker.<br>
-    This page is using <span id="protocol"></span>.
+    <ul style="margin-top:3px;margin-bottom:3px;">
+        <li>Does not support encrypted TLS/SSL connection of MQTT, and can only use fixed IP broker.</li>
+        <li>This page is using <span id="protocol"></span>.</li>
+    </ul>
+    <br>
     <hr>
-
     Doog Inc.
 </body>
 </html>
