@@ -52,7 +52,9 @@
             }
             if(topic == "0/THOUZER_HW/" + type_and_serial + "/indicator/app" && json.data != null && json.data.type != null){
                 var text = json.data.type;
-                if(json.data.number != null) text += "　(" + json.data.number + ")";
+                if(json.data.id != null || json.data.number != null) text += " ";
+                if(json.data.id != null) text += "(id=" + json.data.id + ")";
+                if(json.data.number != null) text += "(r=" + json.data.number + ")";
                 document.getElementById("details").innerHTML = "<span style=\"font-weight:bold;background-color:" + (text.indexOf("error[")==0?"#FF3030":text.indexOf("alert:")==0?"#FF7070":text.indexOf("alarm:")==0?"#FFC0C0":"#FFFF7F") + ";\">" + text + "</span><hr>" + document.getElementById("details").innerHTML;
             }
             if(topic == "0/THOUZER_HW/" + type_and_serial + "/event/app" && json.data != null && json.data.application != null && json.data.application == "highway" && json.data.data != null){
