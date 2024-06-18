@@ -61,10 +61,10 @@
     <!--
     .stick{
         position: absolute;
-        left: calc(50% - 80vmin/2);
-        top: calc(60% - 80vmin/2);
-        width: 80vmin;
-        height: 80vmin;
+        left: calc(50% - 80dvmin/2);
+        top: calc(60% - 80dvmin/2);
+        width: 80dvmin;
+        height: 80dvmin;
         border: 2px solid #232323;
         border-radius: 50%;
         box-sizing: border-box;
@@ -76,10 +76,10 @@
     }
     .stick-init{
         position: absolute;
-        left: calc(50% - 16vmin/2);
-        top: calc(60% - 16vmin/2);
-        width: 16vmin;
-        height: 16vmin;
+        left: calc(50% - 16dvmin/2);
+        top: calc(60% - 16dvmin/2);
+        width: 16dvmin;
+        height: 16dvmin;
         border: 2px solid #232323;
         border-radius: 50%;
         box-sizing: border-box;
@@ -93,13 +93,13 @@
         visibility: hidden;
         position: absolute;
         top: calc(20%);
-        width: 20vmin;
-        height: 20vmin;
+        width: 20dvmin;
+        height: 20dvmin;
         cursor: pointer;
         border: 2px solid #232323;
         border-radius: 50%;
         box-sizing: border-box;
-        font-size: 4vmin;
+        font-size: 4dvmin;
         -webkit-tap-highlight-color:rgba(0,0,0,0);
         -webkit-user-select: none;
         -moz-user-select: none;
@@ -111,7 +111,7 @@
         visibility: hidden;
         white-space: nowrap;
         position: absolute;
-        font-size: 4vmin;
+        font-size: 4dvmin;
         -webkit-tap-highlight-color:rgba(0,0,0,0);
         -webkit-user-select: none;
         -moz-user-select: none;
@@ -132,8 +132,8 @@
     </style>
 </head>
 <body class="content" onload="load();tryConnectFirst();">
-<div id="status" class="area" style="height:8%;font-size:6vmin;">Connecting...</div>
-<div class="area" style="height:12%;font-size:6vmin;">
+<div id="status" class="area" style="height:8%;font-size:6dvmin;">Connecting...</div>
+<div class="area" style="height:12%;font-size:6dvmin;">
     <div class="button" style="width:20%;" onclick="publishCmd('#speedmode_0');" id="m0"><span class="text">0</span></div>
     <div class="button" style="width:20%;" onclick="publishCmd('#speedmode_1');" id="m1"><span class="text">1</span></div>
     <div class="button" style="width:20%;" onclick="publishCmd('#speedmode_2');" id="m2"><span class="text">2</span></div>
@@ -143,11 +143,11 @@
 <canvas id="control" class="stick"></canvas>
 <canvas id="control_init" class="stick-init"></canvas>
 <div class="add-button" id="button_normal" style="left:calc(0%);" onclick="revFunc(false);"><span class="text">Normal</span></div>
-<div class="add-button" id="button_reverse" style="left:calc(100% - 20vmin);" onclick="revFunc(true);"><span class="text">Reverse</span></div>
-<span class="add-text" id="text_front" style="top: calc(60% - 40vmin + 3vmin); left: calc(50%);"><span class="text" id="textF">Front</span></span>
-<span class="add-text" id="text_rear" style="top: calc(60% + 40vmin - 3vmin); left: calc(50%);"><span class="text" id="textR">Rear</span></span>
-<span class="add-text" id="text_left" style="top: calc(60%); left: calc(50% - 40vmin + 3vmin);transform:rotate(-90deg);"><span class="text">Left</span></span>
-<span class="add-text" id="text_right" style="top: calc(60%); left: calc(50% + 40vmin - 3vmin);transform:rotate(+90deg);"><span class="text">Right</span></span>
+<div class="add-button" id="button_reverse" style="left:calc(100% - 20dvmin);" onclick="revFunc(true);"><span class="text">Reverse</span></div>
+<span class="add-text" id="text_front" style="top: calc(60% - 40dvmin + 3dvmin); left: calc(50%);"><span class="text" id="textF">Front</span></span>
+<span class="add-text" id="text_rear" style="top: calc(60% + 40dvmin - 3dvmin); left: calc(50%);"><span class="text" id="textR">Rear</span></span>
+<span class="add-text" id="text_left" style="top: calc(60%); left: calc(50% - 40dvmin + 3dvmin);transform:rotate(-90deg);"><span class="text">Left</span></span>
+<span class="add-text" id="text_right" style="top: calc(60%); left: calc(50% + 40dvmin - 3dvmin);transform:rotate(+90deg);"><span class="text">Right</span></span>
 
 <script>
 var stick = false, v_per = 0, w_per = 0;

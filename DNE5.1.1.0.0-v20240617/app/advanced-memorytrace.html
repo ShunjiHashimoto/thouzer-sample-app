@@ -108,13 +108,13 @@
     </script>
 </head>
 <body style="height:100%;margin:0;" onload="tryConnectFirst();">
-<div id="status" class="area" style="height:8%;font-size:6vmin;">Connecting...</div>
+<div id="status" class="area" style="height:8%;font-size:6dvmin;">Connecting...</div>
 
-<div class="area" style="height:15%;width:50%;font-size:5vmin;"><div class="button" onclick="memorize()" id="memorize"><span class="text" style="font-weight:bold;" id="memorize_t">Memorize</span></div></div>
-<div class="area" style="height:15%;width:50%;font-size:5vmin;"><div class="button" onclick="play()" id="play"><span class="text" style="font-weight:bold;" id="play_t">Play</span></div></div>
+<div class="area" style="height:15%;width:50%;font-size:5dvmin;"><div class="button" onclick="memorize()" id="memorize"><span class="text" style="font-weight:bold;" id="memorize_t">Memorize</span></div></div>
+<div class="area" style="height:15%;width:50%;font-size:5dvmin;"><div class="button" onclick="play()" id="play"><span class="text" style="font-weight:bold;" id="play_t">Play</span></div></div>
 
-<input id="map" type="text" style="height:12%;font-size:8vmin;width:calc(100% - 75px);box-sizing:border-box;float:left;" value="IO76">
-<select style="height:12%;font-size:9vmin;width:40px;box-sizing:border-box;float:left;" id="select" onchange="select();">
+<input id="map" type="text" style="height:12%;font-size:8dvmin;width:calc(100% - 75px);box-sizing:border-box;float:left;" value="IO76">
+<select style="height:12%;font-size:6dvmin;width:40px;box-sizing:border-box;float:left;" id="select" onchange="select();">
   <option value=""></option>
   <option value="IO76">IO76</option>
   <option value="B101">B101</option>
@@ -132,41 +132,41 @@
   <option value="B206">B206</option>
   <option value="B207">B207</option>
 </select>
-<div class="area" style="height:12%;font-size:6vmin;display:none;" id="pos_t"></div>
+<div class="area" style="height:12%;font-size:6dvmin;display:none;" id="pos_t"></div>
 
-<div class="area" style="height:10%;width:50%;font-size:3vmin;"><div class="button" onclick="publishCmd('#pause')"><span class="text">Begin PAUSE<br>#pause</span></div></div>
-<div class="area" style="height:10%;width:50%;font-size:3vmin;"><div class="button" onclick="publishCmd('#run')"><span class="text">End PAUSE<br>#run</span></div></div>
-<div class="area" style="height:10%;width:50%;font-size:3vmin;"><div class="button" onclick="publishCmd('#ext1_toggle')" id="IO1"><span class="text">IO 1<br>#ext1_toggle</span></div></div>
-<div class="area" style="height:10%;width:50%;font-size:3vmin;"><div class="button" onclick="publishCmd('#ext0_toggle')" id="IO0"><span class="text">IO 0<br>#ext0_toggle</span></div></div>
+<div class="area" style="height:10%;width:50%;font-size:3dvmin;"><div class="button" onclick="publishCmd('#pause')"><span class="text">Begin PAUSE<br>#pause</span></div></div>
+<div class="area" style="height:10%;width:50%;font-size:3dvmin;"><div class="button" onclick="publishCmd('#run')"><span class="text">End PAUSE<br>#run</span></div></div>
+<div class="area" style="height:10%;width:50%;font-size:3dvmin;"><div class="button" onclick="publishCmd('#ext1_toggle')" id="IO1"><span class="text">IO 1<br>#ext1_toggle</span></div></div>
+<div class="area" style="height:10%;width:50%;font-size:3dvmin;"><div class="button" onclick="publishCmd('#ext0_toggle')" id="IO0"><span class="text">IO 0<br>#ext0_toggle</span></div></div>
 
-<div class="area" style="height:8%;width:50%;font-size:5vmin;"><div class="button" id="memorize_select" style="border:solid;border-radius:1px;background-color:#FFFFFF;color:#000000;" onclick="memorize_select()"><span class="text">Memorize Menu</span></div></div>
-<div class="area" style="height:8%;width:50%;font-size:5vmin;"><div class="button" id="play_select" style="border:none;border-radius:1px;background-color:#EEEEEE;color:#555555;" onclick="play_select()"><span class="text">Play Menu</span></div></div>
+<div class="area" style="height:8%;width:50%;font-size:5dvmin;"><div class="button" id="memorize_select" style="border:solid;border-radius:1px;background-color:#FFFFFF;color:#000000;" onclick="memorize_select()"><span class="text">Memorize Menu</span></div></div>
+<div class="area" style="height:8%;width:50%;font-size:5dvmin;"><div class="button" id="play_select" style="border:none;border-radius:1px;background-color:#EEEEEE;color:#555555;" onclick="play_select()"><span class="text">Play Menu</span></div></div>
 
 <div class="area" id="memorize_menu" style="height:37%;">
-  <div class="area" style="height:14%;width:28%;font-size:3vmin;"><input type="checkbox" id="teachBack"><label for="teachBack">teachBack</label></div>
-  <div class="area" style="height:14%;width:37%;font-size:3vmin;"><input type="checkbox" id="teachStartLTHW"><label for="teachStartLTHW">teachStartLTHW</label></div>
-  <div class="area" style="height:14%;width:35%;font-size:3vmin;"><div class="button" onclick="publishCmdParam('memory-cancel', '');"><span class="text">Memorize Cancel</span></div></div>
+  <div class="area" style="height:14%;width:28%;font-size:3dvmin;"><input type="checkbox" id="teachBack"><label for="teachBack">teachBack</label></div>
+  <div class="area" style="height:14%;width:37%;font-size:3dvmin;"><input type="checkbox" id="teachStartLTHW"><label for="teachStartLTHW">teachStartLTHW</label></div>
+  <div class="area" style="height:14%;width:35%;font-size:3dvmin;"><div class="button" onclick="publishCmdParam('memory-cancel', '');"><span class="text">Memorize Cancel</span></div></div>
 
-  <div class="area" style="height:19%;width:75%;font-size:3vmin;"><div class="button" onclick="publishCmd('#pause#pauseset_' + document.getElementById('time').value + '#run')"><span class="text">Set Pause Fixed Seconds (0-86400) -&gt;</span></div></div>
-  <div class="area" style="height:19%;width:25%;font-size:3vmin;"><input id="time" type="number" style="height:100%;font-size:4vmin;width:100%;box-sizing:border-box;" value="0" min="0" max="86400" step="1"></div>
+  <div class="area" style="height:19%;width:75%;font-size:3dvmin;"><div class="button" onclick="publishCmd('#pause#pauseset_' + document.getElementById('time').value + '#run')"><span class="text">Set Pause Fixed Seconds (0-86400) -&gt;</span></div></div>
+  <div class="area" style="height:19%;width:25%;font-size:3dvmin;"><input id="time" type="number" style="height:100%;font-size:4dvmin;width:100%;box-sizing:border-box;" value="0" min="0" max="86400" step="1"></div>
 
-  <div class="area" style="height:18%;font-size:3vmin;"><div class="button" onclick="publishCmd('#set_suspend')"><span class="text">HOLD #set_suspend</span></div></div>
+  <div class="area" style="height:18%;font-size:3dvmin;"><div class="button" onclick="publishCmd('#set_suspend')"><span class="text">HOLD #set_suspend</span></div></div>
 
-  <div class="area" style="height:30%;font-size:3vmin;"><div class="button" onclick="publishCmd('#set_accuracy')"><span class="text">ACCURACY STOP #set_accuracy<br>(PAUSE or HLOD to end at stop point)</span></div></div>
+  <div class="area" style="height:30%;font-size:3dvmin;"><div class="button" onclick="publishCmd('#set_accuracy')"><span class="text">ACCURACY STOP #set_accuracy<br>(PAUSE or HLOD to end at stop point)</span></div></div>
 
-  <div class="area" style="height:18%;width:50%;font-size:3vmin;"><div class="button" onclick="publishCmd('#set_obstacle_off')"><span class="text">#set_obstacle_off</span></div></div>
-  <div class="area" style="height:18%;width:50%;font-size:3vmin;"><div class="button" onclick="publishCmd('#set_obstacle_on')"><span class="text">#set_obstacle_on</span></div></div>
+  <div class="area" style="height:18%;width:50%;font-size:3dvmin;"><div class="button" onclick="publishCmd('#set_obstacle_off')"><span class="text">#set_obstacle_off</span></div></div>
+  <div class="area" style="height:18%;width:50%;font-size:3dvmin;"><div class="button" onclick="publishCmd('#set_obstacle_on')"><span class="text">#set_obstacle_on</span></div></div>
 </div>
 
 <div class="area" id="play_menu" style="height:37%;display:none;">
-  <div class="area" style="height:14%;width:14%;font-size:3vmin;"><input type="checkbox" id="loop"><label for="loop">loop</label></div>
-  <div class="area" style="height:14%;width:20%;font-size:3vmin;"><input type="checkbox" id="reverse"><label for="reverse">reverse</label></div>
-  <div class="area" style="height:14%;width:22%;font-size:3vmin;"><input type="checkbox" id="rewind"><label for="rewind">rewind</label></div>
+  <div class="area" style="height:14%;width:14%;font-size:3dvmin;"><input type="checkbox" id="loop"><label for="loop">loop</label></div>
+  <div class="area" style="height:14%;width:20%;font-size:3dvmin;"><input type="checkbox" id="reverse"><label for="reverse">reverse</label></div>
+  <div class="area" style="height:14%;width:22%;font-size:3dvmin;"><input type="checkbox" id="rewind"><label for="rewind">rewind</label></div>
 
-  <div class="area" style="height:14%;width:22%;font-size:4vmin;"><span id="alarm_t">alarm:---</span></div>
-  <div class="area" style="height:14%;width:22%;font-size:4vmin;"><span id="alert_t">alert:---</span></div>
+  <div class="area" style="height:14%;width:22%;font-size:4dvmin;"><span id="alarm_t">alarm:---</span></div>
+  <div class="area" style="height:14%;width:22%;font-size:4dvmin;"><span id="alert_t">alert:---</span></div>
 
-  <div id="details" style="overflow-y:scroll;font-size:3vmin;width:100%;height:86%;"><br><b>*** Details of Indicator and Memorytrace ***</b></div>
+  <div id="details" style="overflow-y:scroll;font-size:3dvmin;width:100%;height:86%;"><br><b>*** Details of Indicator and Memorytrace ***</b></div>
 </div>
 
 </body>
