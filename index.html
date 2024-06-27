@@ -101,12 +101,13 @@
 
     <div style="font-size:160%;margin-bottom:5px;"><b>Pre-Installed Samples/API release note</b></div>
 
-    <b><a href="DNE5.1.1.0.0-v20240617/app">DNE5.1.1.0.0-v20240617</a></b><br>
+    <b><a href="DNE5.1.1.4.0-v20240626/app">DNE5.1.1.4.0-v20240626</a></b> (more stable than DNE5.1.1.*.*)<br>
     <span style="color:#FF4444">Not release/install version for Thozuer E-series</span><br>
     [What's New for MQTT API and Web bases UI application]<br>
     <ul style="margin-top:3px;margin-bottom:3px;">
         <li>List of the Highway-Multi-Button and Advanced-LineTrace, the 700-707 were changed to the 000-007.</li>
         <li>The "client_dne_lib.js" has been modified, and most sample apps now use subscribeParse<u><b>d</b></u>() instead of subscribeParse().</li>
+        <li>The Advanced-LineTrace adds color coding based on highway-marker scores. Additionally, the use of subscribeParsed() was incomplete and fixed.</li>
         <li>DNE changed. When the joystick module's power button was pressed to terminate normally, "applicationWorking" was notified as #default, but this has been changed to #start. The purpose is to set all IO3-5 to L when there is no error, and turn off the melody device and indicator light.</li>
         <li>The font size specification has been changed from vmin to dvmin. (from CSS3 to CSS4)</li>
         <li>Tweaked drop-down lists for iPad.</li>

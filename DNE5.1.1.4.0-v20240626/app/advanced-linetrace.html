@@ -23,7 +23,11 @@
         function subscribeParsed(topic, json){
             if(topic == "0/THOUZER_HW/" + type_and_serial + "/event/app"){
                 if(json.data != null && json.data.application != null && json.data.application == "highway" && json.data.data != null && json.data.data.mark != null){
-                    document.getElementById("details").innerHTML = "<span style=\"font-size:150%;font-weight:bold;background-color:" + (checkParse(json.data.event) == "badMark"?"#FF4040":"#FFFFFF") + "\">code: " + checkParse(json.data.data.mark.code) + ", score: " + checkParse(json.data.data.mark.score) + "</span><br><span style=\"font-size:250%;font-weight:bold;\">" + checkParse(json.data.data.mark.name) + "</span><br><br>" + json + "<hr>" + document.getElementById("details").innerHTML;
+                    var score = checkParse(json.data.data.mark.score);
+                    var code = checkParse(json.data.data.mark.code);
+                    var name = checkParse(json.data.data.mark.name);
+                    var badmark = checkParse(json.data.event) == "badMark";
+                    document.getElementById("details").innerHTML = "<span style=\"font-size:150%;font-weight:bold;background-color:" + (badmark || score <= 50?"#FF4040":score >= 70?"#80FF80":"#FFFF80") + "\">code: " + code + ", score: " + score + "</span><br><span style=\"font-size:250%;font-weight:bold;\">" + name + "</span><br><br>" + json_text + "<hr>" + document.getElementById("details").innerHTML;
                 }
                 if(json.data != null && json.data.application != null && json.data.application == "linetrace" && json.data.status != null){
                     document.getElementById("appStatus").innerText = json.data.status;

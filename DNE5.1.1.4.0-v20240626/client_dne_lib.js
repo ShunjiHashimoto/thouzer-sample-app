@@ -6,6 +6,7 @@ var connetced_msg = "Connect success";
 var keepAlive = null;
 var autoDisconnect = null;
 var useBeep = true;
+var json_text = "";
 
 function tryConnectFirst(){
     if(typeof loadCookie !== 'undefined') loadCookie();
@@ -70,7 +71,7 @@ function onMessageArrived(message) {
     console.log('payload: ' + message.destinationName + " : " + message.payloadString);
     if(message.destinationName.match(new RegExp("0/WHISPERER/.+/version")) != null) keepAlive = new Date(); //later DNE4.9
     if(typeof subscribeParse == 'function') subscribeParse(message);
-    if(typeof subscribeParsed == 'function') subscribeParsed(message.destinationName, JSON.parse(message.payloadString));
+    if(typeof subscribeParsed == 'function') subscribeParsed(message.destinationName, JSON.parse(json_text = message.payloadString));
 }
 
 setInterval("keepAlive100()", 100);
