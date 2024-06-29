@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;touch-action:none;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <link rel="stylesheet" href="../app/style.css"> <!-- DNE4.8 -->
+    <link rel="stylesheet" href="../default.css"> <!-- DNE5 -->
+    <title>Connecting...</title>
+    <script>
+        function onConnected(){
+            subscribe("0/THOUZER_HW/" + type_and_serial + "/status/app");
+        }
+        function subscribeParse(message){
+            const from_json = JSON.parse(message.payloadString);
+            if(subscribeCheckFinishSuccess(from_json)) sequence();
+            if((from_json.app != null && (from_json.app == "#alert" || from_json.app.indexOf("./bin/app-userInput") == 0) && from_json.running != null && from_json.running == "OK")){
+                if(startTime != null && new Date().getTime() - startTime.getTime() > 1000){
+                    startTime = null;
+                    publishCmd('');
+                    document.getElementById("button").style.backgroundColor = "#FFFFFF";
+                }
+            }
+        }
+        var tick = 0;
+        var startTime = null;
+        function start(){
+            if(startTime != null){ publishCmd(''); }
+            document.getElementById("button").style.backgroundColor = "#FFFF70";
+            startTime = new Date();
+            tick = 0;
+            sequence();
+        }
+        function sequence(){
+            if(startTime == null) return;
+            if(tick%2 == 0) publishCmdParam('app-memorytrace', '--map B10' + String(1+tick/2));
+            if(tick%2 == 1) publishHW(101 + tick/2);
+            ++tick;
+        }
+    </script>
+</head>
+<body style="height:100%;margin:0;" onload="tryConnectFirst();">
+<div id="status" class="area" style="height:8%;font-size:7vmin;">Connecting...</div>
+<div class="area" style="height:92%;"><div class="button" id="button" onclick="start()">
+  <span class="text" style="font-size:4vmin;text-align:center;">MT:B101<br>|<br>HW:101<br>|<br>MT:B102<br>|<br>HW:102<br>|<br>MT:B103<br>|<br>HW:103<br>|<br>...</span>
+</div></div>
+</body>
+</html>
