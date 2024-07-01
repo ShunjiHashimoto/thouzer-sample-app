@@ -17,12 +17,10 @@
         function subscribeParse(message){
             const from_json = JSON.parse(message.payloadString);
             if(subscribeCheckFinishSuccess(from_json)) sequence();
-            if((from_json.app != null && (from_json.app == "#alert" || from_json.app.indexOf("./bin/app-userInput") == 0) && from_json.running != null && from_json.running == "OK")){
-                if(startTime != null && new Date().getTime() - startTime.getTime() > 1000){
-                    startTime = null;
-                    publishCmd('');
-                    document.getElementById("button").style.backgroundColor = "#FFFFFF";
-                }
+            if((from_json.app != null && (from_json.app == "#alert" || (from_json.app.indexOf("./bin/app-userInput") == 0 && startTime != null && new Date().getTime() - startTime.getTime() > 1000)) && from_json.running != null && from_json.running == "OK")){
+                startTime = null;
+                publishCmd('');
+                document.getElementById("button").style.backgroundColor = "#FFFFFF";
             }
         }
         var tick = 0;
