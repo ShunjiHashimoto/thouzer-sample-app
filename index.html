@@ -20,7 +20,11 @@
             mqtt_password = (result= new RegExp('(?:^|; )' + encodeURIComponent("password") + '=([^;]*)').exec(document.cookie)) ? String(result[1]) : null;
         }
         function saveCookie(){ //need four input elements
-            document.cookie = "address=" + document.getElementById("address").value + "; max-age=157680000;"
+            hostname = document.getElementById("address").value;
+            if(hostname.indexOf("wss://") == -1 && document.getElementById("wss").checked){
+                hostname = "wss://" + hostname;
+            }
+            document.cookie = "address=" + hostname + "; max-age=157680000;"
             document.cookie = "port=" + document.getElementById("port").value + "; max-age=157680000;";
             document.cookie = "username=" + document.getElementById("username").value + "; max-age=157680000;"
             document.cookie = "password=" + document.getElementById("password").value + "; max-age=157680000;"
@@ -34,10 +38,18 @@
         function load(){
             loadCookieArea();
             document.getElementById("protocol").innerHTML = (location.protocol == 'http:'?"<b style='color:green;'>HTTP</b>":"<b style='color:red;'>"+(location.protocol == 'https:'?"HTTPS":"UNDEFINED")+"</b>");
+            if(location.protocol == "https:"){
+                document.getElementById("wss").checked = true;
+                document.getElementById("wss").disabled = true;
+            }
         }
         function loadCookieArea(){
             loadCookie();
             if(websocket_host != null && websocket_port != null && mqtt_username != null && mqtt_password != null){
+                if(websocket_host.indexOf("wss://") == 0){
+                    websocket_host = websocket_host.slice(6);
+                    document.getElementById("wss").checked = true;
+                }
                 document.getElementById("address").value = websocket_host;
                 document.getElementById("port").value = websocket_port;
                 document.getElementById("username").value = mqtt_username;
@@ -74,12 +86,16 @@
 
     <hr>
 
-    <div style="font-size:120%;margin-bottom:5px;"><b>[Cookie] MQTT over WebSocket</b></div>
+    <div style="font-size:120%;margin-bottom:5px;">
+        <b>MQTT over WebSocket</b>
+        <input type="checkbox" id="wss" name="wss" />
+        <span style="display:inline-block;width:100px;font-size:100%;">with TLS</span>
+    </div>
     <span style="display:inline-block;width:120px;font-size:120%;">- address </span><input type="text" size="15" id="address" style="font-size:120%;"><br>
     <span style="display:inline-block;width:120px;font-size:120%;">- port </span><input type="text" size="15" id="port" style="font-size:120%;"><br>
     <span style="display:inline-block;width:120px;font-size:120%;">- username </span><input type="text" size="15" id="username" style="font-size:120%;"><br>
     <span style="display:inline-block;width:120px;font-size:120%;">- password </span><input type="text" size="15" id="password" style="font-size:120%;" oninput="changeType();" onclick="clickType();changeType();"><br>
-    <input style="height:30px;width:100px;font-size:120%;margin-top:5px;" type="button" id="save" value="save" onclick="saveCookie();loadCookieArea();"> <input style="height:30px;width:100px;font-size:120%;margin-top:5px;" type="button" id="reset" value="reset" onclick="resetCookie();loadCookieArea();"><br>
+    <input style="height:30px;width:160px;font-size:120%;margin-top:5px;" type="button" id="save" value="save in Cookie" onclick="saveCookie();loadCookieArea();"> <input style="height:30px;width:100px;font-size:120%;margin-top:5px;" type="button" id="reset" value="reset" onclick="resetCookie();loadCookieArea();"><br>
 
     <hr>
 
