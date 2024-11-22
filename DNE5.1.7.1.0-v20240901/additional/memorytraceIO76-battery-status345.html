@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0;touch-action:none;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="../fixed_info.js"></script>
+    <script type="text/javascript" src="../connection.js"></script>
+    <script type="text/javascript" src="../paho-mqtt-min.js"></script>
+    <script type="text/javascript" src="../client_dne_lib.js"></script>
+    <link rel="stylesheet" href="../default.css">
+    <title>Connecting...</title>
+    <script>
+        function onConnected(){
+            subscribe("0/WHISPERER/" + type_and_serial + "/app_status");
+            subscribe("0/WHISPERER/" + type_and_serial + "/battery");
+            subscribe("0/WHISPERER/" + type_and_serial + "/io12");
+        }
+        function subscribeParsed(topic, json){
+            if(topic == "0/WHISPERER/" + type_and_serial + "/app_status" && json.MT_suspend != null && json.app != null){
+                if(json.app.indexOf("./bin/app-memorytrace") == 0){
+                    document.getElementById("play_t").innerText = "Playback Stop";
+                    document.getElementById("play").setAttribute("onclick", "stop()");
+                }else{
+                    document.getElementById("play_t").innerText = "Play (IO76)";
+                    document.getElementById("play").setAttribute("onclick", "play()");
+                }
+                if(json.MT_suspend){
+                    document.getElementById("play_t").innerText = "Play Resume";
+                }
+            }
+            if(topic == "0/WHISPERER/" + type_and_serial + "/battery" && json.gauge != null){
+                var gauge = Number(json.gauge);
+                document.getElementById("BA10").style.backgroundColor = (gauge >= 10)?"#00FF00":"#FFFFFF";
+                document.getElementById("BA9").style.backgroundColor = (gauge >= 9)?"#00FF00":"#FFFFFF";
+                document.getElementById("BA8").style.backgroundColor = (gauge >= 8)?"#00FF00":"#FFFFFF";
+                document.getElementById("BA7").style.backgroundColor = (gauge >= 7)?"#FFD700":"#FFFFFF";
+                document.getElementById("BA6").style.backgroundColor = (gauge >= 6)?"#FFD700":"#FFFFFF";
+                document.getElementById("BA5").style.backgroundColor = (gauge >= 5)?"#FFD700":"#FFFFFF";
+                document.getElementById("BA4").style.backgroundColor = (gauge >= 4)?"#FFD700":"#FFFFFF";
+                document.getElementById("BA3").style.backgroundColor = (gauge >= 3)?"#FF0000":"#FFFFFF";
+                document.getElementById("BA2").style.backgroundColor = (gauge >= 2)?"#FF0000":"#FFFFFF";
+                document.getElementById("BA1").style.backgroundColor = (gauge >= 1)?"#FF0000":"#FFFFFF";
+            }
+            if(topic == "0/WHISPERER/" + type_and_serial + "/io12" && json.level != null){
+                document.getElementById("IO5").style.backgroundColor = (json.level.charAt(6) == '1')?"#FF0000":"";
+                document.getElementById("IO4").style.backgroundColor = (json.level.charAt(7) == '1')?"#FFF100":"";
+                document.getElementById("IO3").style.backgroundColor = (json.level.charAt(8) == '1')?"#00FF00":"";
+            }
+        }
+        function play(){ publishCmdParam('app-memorytrace', '--map IO76'); }
+        function stop(){ publishCmd(''); }
+    </script>
+</head>
+<body class="content" onload="tryConnectFirst();" ontouchstart="">
+<div id="status" class="area" style="height:8%;font-size:6vmin;font-size:6dvmin;">Connecting...</div>
+<div class="area" style="height:9%;font-size:6vmin;font-size:6dvmin;position:relative;border:2px solid #232323;" id="IO5"><span class="text">IO5-Red</span></div>
+<div class="area" style="height:9%;font-size:6vmin;font-size:6dvmin;position:relative;border:2px solid #232323;" id="IO4"><span class="text">IO4-Yellow</span></div>
+<div class="area" style="height:9%;font-size:6vmin;font-size:6dvmin;position:relative;border:2px solid #232323;" id="IO3"><span class="text">IO3-Green</span></div>
+<div class="area" style="height:2%;position:relative;"><span class="text"> </span></div>
+<div class="area" style="height:20%;">
+    <div class="area" style="height:100%;width:10%;font-size:5vmin;font-size:5dvmin;position:relative;border:2px solid #232323;" id="BA1"><span class="text">1</span></div>
+    <div class="area" style="height:100%;width:10%;font-size:5vmin;font-size:5dvmin;position:relative;border:2px solid #232323;" id="BA2"><span class="text">2</span></div>
+    <div class="area" style="height:100%;width:10%;font-size:5vmin;font-size:5dvmin;position:relative;border:2px solid #232323;" id="BA3"><span class="text">3</span></div>
+    <div class="area" style="height:100%;width:10%;font-size:5vmin;font-size:5dvmin;position:relative;border:2px solid #232323;" id="BA4"><span class="text">4</span></div>
+    <div class="area" style="height:100%;width:10%;font-size:5vmin;font-size:5dvmin;position:relative;border:2px solid #232323;" id="BA5"><span class="text">5</span></div>
+    <div class="area" style="height:100%;width:10%;font-size:5vmin;font-size:5dvmin;position:relative;border:2px solid #232323;" id="BA6"><span class="text">6</span></div>
+    <div class="area" style="height:100%;width:10%;font-size:5vmin;font-size:5dvmin;position:relative;border:2px solid #232323;" id="BA7"><span class="text">7</span></div>
+    <div class="area" style="height:100%;width:10%;font-size:5vmin;font-size:5dvmin;position:relative;border:2px solid #232323;" id="BA8"><span class="text">8</span></div>
+    <div class="area" style="height:100%;width:10%;font-size:5vmin;font-size:5dvmin;position:relative;border:2px solid #232323;" id="BA9"><span class="text">9</span></div>
+    <div class="area" style="height:100%;width:10%;font-size:5vmin;font-size:5dvmin;position:relative;border:2px solid #232323;" id="BA10"><span class="text">10</span></div>
+</div>
+<div class="area" style="height:2%;position:relative"><span class="text"> </span></div>
+<div class="area" style="height:40%;font-size:10vmin;font-size:10dvmin;"><div class="button" id="play" onclick="play()"><span class="text" id="play_t">Play (IO76)</span></div></div>
+</body>
+</html>
