@@ -16,6 +16,8 @@
     <title>Connecting...</title>
     
     <script>
+        // 変数定義
+        let selectedMaps = [];
         // 関数定義
         // ブローカに接続時に実行される 
         function onConnected(){
@@ -24,10 +26,10 @@
             subscribe("0/WHISPERER/" + type_and_serial + "/app_status");
             subscribe("0/THOUZER_HW/" + type_and_serial + "/event/app");
             subscribe("0/THOUZER_HW/" + type_and_serial + "/indicator/app");
-            pos_t_update("---", "---");
         }
         // MQTTでmsgを受け取った後に、受け取ったmsgをもとに処理が分岐する
         function subscribeParsed(topic, json){
+            // MT操作
             if(topic == "0/WHISPERER/" + type_and_serial + "/app_status" && json.MT_suspend != null && json.app != null && json.MT_teach != null){
                 // メモリトレース走行中
                 if(json.app.indexOf("./bin/app-memorytrace") == 0){
@@ -40,8 +42,8 @@
                     document.getElementById("play").setAttribute("onclick", "stop()");
                 }else{
                 // メモリトレース走行中ではないとき
-                    document.getElementById("memorize_t").innerText = "Memorize (IO76)";
-                    document.getElementById("play_t").innerText = "Play (IO76)";
+                    document.getElementById("memorize_t").innerText = "Memorize";
+                    document.getElementById("play_t").innerText = "Play";
                     document.getElementById("play").setAttribute("onclick", "play()");
                 }
                 // メモリトレースの記憶中
@@ -65,38 +67,88 @@
                     document.getElementById("pos_t").style.display = 'block';
                 }
             }
+            // MTの進捗状況を表示
             if(topic == "0/THOUZER_HW/" + type_and_serial + "/event/app" && json.data != null && json.data.application != null && (json.data.application == "memorytrace" || json.data.application == "memorytraceTeach")){ 
-                if(json.data.map != null && json.data.pos != null) pos_t_update(json.data.map, json.data.pos);
+                if(json.data.map != null && json.data.pos != null) pos_t_update(json.data.map, Math.round(100*(json.data.pos/json.data.last)));
             }
+            // 表示灯のio出力を表示
+            if(topic == "0/WHISPERER/" + type_and_serial + "/io12" && json.level != null){
+                // 受信時にライトを更新
+                document.getElementById("IO5").style.backgroundColor = (json.level.charAt(6) == '1')?"#FF0000":"";
+                document.getElementById("IO4").style.backgroundColor = (json.level.charAt(7) == '1')?"#FFF100":"";
+                document.getElementById("IO3").style.backgroundColor = (json.level.charAt(8) == '1')?"#00FF00":"";
+            }
+            if(topic == "0/THOUZER_HW/" + type_and_serial + "/indicator/app" && json.data != null && json.data.type != null && json.time != null){
+                var text = json.data.type;
+                if(json.data.id != null || json.data.number != null) text += " ";
+                if(json.data.id != null) text += "(id=" + json.data.id + ")";
+                if(json.data.number != null) text += "(r=" + json.data.number + ")";
+                document.getElementById("details").innerHTML = "<span style=\"font-weight:bold;background-color:" + (text.indexOf("error[")==0?"#FF3030":text.indexOf("alert:")==0?"#FF7070":text.indexOf("alarm:")==0?"#FFC0C0":"#FFFF7F") + ";\">" + text + "</span><br> at " + json.time + "<hr>" + document.getElementById("details").innerHTML;
+            }
+        }
+        // マップ選択
+        function select(){
+            var sel = document.getElementById("select");
+            if(sel.value != ""){
+                document.getElementById("map").value = sel.value;
+                sel.options[0].selected = true;
+            }
+        }
+        // 記憶開始
+        function memorize(){
+            publishCmdParam('memory-start-save', '--map ' + document.getElementById('map').value);
         }
         // ボタンが押されたときに呼ばれる関数
         function play(){ 
-            // IO76でメモリトレースの走行を開始する
-            publishCmdParam('app-memorytrace', '--map IO76'); 
-            // 走行中の進捗状況を更新する関数を呼び出す
-            pos_t_update(map, pos);
+            const mapsString = selectedMaps.join("+");
+            publishCmdParam('app-memorytrace', '--map ' + mapsString);
         }
-        function loop(){ publishCmdParam('app-memorytrace', '--map IO76 --loop'); }
         // メモリトレースを停止する
-        function stop(){ publishCmd(''); }
+        function stop(){ 
+            publishCmd(''); 
+        }
         // 走行中の進捗状況を更新する
         function pos_t_update(m, p) {
             // innerHTML: HTML要素に値を追加する
-            document.getElementById("pos_t").innerHTML = "<div style='height:100%;width:100%;float:left;position:relative;'><span class='text'>map : " + m + " / pos : " + p + "</span></div>";
+            document.getElementById("pos_t").innerHTML = "<div style='height:100%;width:100%;float:left;position:relative;'><span class='text'>Map : " + m + " / Progress Rate : " + p + "%" + "</span></div>";
+        }
+        // リスト再生
+        function updateSelectedMaps() {
+            document.getElementById("selectedMaps").innerText = selectedMaps.join("+");
+        }
+        function addMap(map) {
+            if (!selectedMaps.includes(map)) {
+                selectedMaps.push(map);
+                updateSelectedMaps();
+            }
+        }
+        function clearMaps() {
+            selectedMaps = [];
+            updateSelectedMaps();
         }
     </script>
 </head>
 
+
+<!-- ボタン配置 -->
 <!-- ページが表示されると同時に初期設定や接続処理（MQTTサーバーへの接続など）が実行される -->
 <body class="content" onload="tryConnectFirst();" ontouchstart="">
 <div id="status" class="area" style="height:8%;font-size:6vmin;font-size:6dvmin;">Connecting...</div>
 
-<div class="area" style="height:30%;font-size:10vmin;font-size:10dvmin;"><div class="button" id="memorize" onclick="publishCmdParam('memory-start-save', '--map IO76')"><span class="text" id="memorize_t">Memorize (IO76)</span></div></div>
-<div class="area" style="height:30%;font-size:10vmin;font-size:10dvmin;"><div class="button" id="play" onclick="play()"><span class="text" id="play_t">Play (IO76)</span></div></div>
+<!-- 表示灯 -->
+<div style="text-align: center;"> <!-- 親要素 -->
+  <div class="area" style="height:75px; width:300px; margin: 1px auto; font-size:auto; position:relative; border:2px solid #232323; clear: both;" id="IO5">
+    <span class="text">IO5-Red（障害発生中）</span>
+  </div>
+  <div class="area" style="height:75px; width:300px; margin: 1px auto; font-size:auto; position:relative; border:2px solid #232323; clear: both;" id="IO4">
+    <span class="text">IO4-Yellow（待機中）</span>
+  </div>
+  <div class="area" style="height:75px; width:300px; margin: 1px auto; font-size:auto; position:relative; border:2px solid #232323; clear: both;" id="IO3">
+    <span class="text">IO3-Green（自動走行中）</span>
+  </div>
+</div>
 
-
-<div class="area" style="height:30%;font-size:10vmin;font-size:10dvmin;" id="pos_t"></div>
-
+<!-- 進捗状況表示 -->
 <input id="map" type="text" style="height:12%;font-size:8vmin;font-size:8dvmin;width:calc(100% - 75px);box-sizing:border-box;float:left;" value="IO76">
 <select style="height:12%;font-size:6vmin;font-size:6dvmin;width:40px;box-sizing:border-box;float:left;" id="select" onchange="select();">
   <option value=""></option>
@@ -116,4 +168,42 @@
   <option value="B206">B206</option>
   <option value="B207">B207</option>
 </select>
+<div class="area" style="height:12%;font-size:8vmin;font-size:8dvmin;" id="pos_t"></div>
+
+<!-- MT記憶ボタン -->
+<div class="area" style="height:15%;width:50%;font-size:5vmin;font-size:5dvmin;"><div class="button" onclick="memorize()" id="memorize"><span class="text" style="font-weight:bold;" id="memorize_t">Memorize</span></div></div>
+<div class="area" style="height:15%;width:50%;font-size:5vmin;font-size:5dvmin;"><div class="button" id="play" onclick="play()"><span class="text" style="font-weight:bold;" id="play_t">Play</span></div></div>
+
+<!-- 永続停止ボタン -->
+<div class="area" style="height:10%;width:50%;font-size:auto;"><div class="button" onclick="publishCmd('#pause#pauseset_0#run')"><span class="text">Begin Pause <br>#pauset_0</span></div></div>
+<div class="area" style="height:10%;width:50%;font-size:auto;"><div class="button" onclick="publishCmd('#run')"><span class="text">End Pause <br>#run</span></div></div>
+
+<!-- ログ出力ボタン -->
+<div class="area" style="height:9%;width:100%;font-size:auto;"><div class="button" onclick="publishCmd('#last_indicator')"><span class="text">#last_indicator（ログ出力）</span></div></div>
+<div class="area" style="overflow-y:scroll;font-size:3vmin;font-size:3dvmin;width:100%;height:47%;" id="details"><br>*** Details of Indicator topic ***</b></div>
+
+<!-- リスト再生のmap指定ボタン -->
+<div style="text-align: center;">
+    <button onclick="addMap('IO76')">IO76</button>
+    <button onclick="addMap('B101')">B101</button>
+    <button onclick="addMap('B102')">B102</button>
+    <button onclick="addMap('B103')">B103</button>
+    <button onclick="addMap('B104')">B104</button>
+    <button onclick="addMap('B105')">B105</button>
+    <button onclick="addMap('B106')">B106</button>
+    <button onclick="addMap('B107')">B107</button>
+    <button onclick="addMap('B201')">B201</button>
+    <button onclick="addMap('B202')">B202</button>
+    <button onclick="addMap('B203')">B203</button>
+    <button onclick="addMap('B204')">B204</button>
+    <button onclick="addMap('B205')">B205</button>
+    <button onclick="addMap('B206')">B206</button>
+    <button onclick="addMap('B207')">B207</button>
+    <button onclick="clearMaps()">Clear</button>
+</div>
+<!-- 選択されたマップを表示 -->
+<div style="text-align: center; margin-top: 20px;">
+    <h3>Selected Map:</h3>
+    <div id="selectedMaps"></div>
+</div>
 </html>
