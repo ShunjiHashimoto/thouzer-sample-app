@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../client_dne_lib.js"></script>
     <!-- CSSファイルを読み込み -->
     <link rel="stylesheet" href="../default.css">
+    <link rel="stylesheet" href="custom.css">
     <title>Connecting...</title>
     
     <script>
@@ -130,27 +131,58 @@
 </head>
 
 
-<!-- ボタン配置 -->
+<!-- ボタン配置をCSSで記述 -->
 <!-- ページが表示されると同時に初期設定や接続処理（MQTTサーバーへの接続など）が実行される -->
 <body class="content" onload="tryConnectFirst();" ontouchstart="">
 <div id="status" class="area" style="height:8%;font-size:6vmin;font-size:6dvmin;">Connecting...</div>
 
-<!-- 表示灯 -->
-<div style="text-align: center;"> <!-- 親要素 -->
-  <div class="area" style="height:75px; width:300px; margin: 1px auto; font-size:auto; position:relative; border:2px solid #232323; clear: both;" id="IO5">
-    <span class="text">IO5-Red（障害発生中）</span>
-  </div>
-  <div class="area" style="height:75px; width:300px; margin: 1px auto; font-size:auto; position:relative; border:2px solid #232323; clear: both;" id="IO4">
-    <span class="text">IO4-Yellow（待機中）</span>
-  </div>
-  <div class="area" style="height:75px; width:300px; margin: 1px auto; font-size:auto; position:relative; border:2px solid #232323; clear: both;" id="IO3">
-    <span class="text">IO3-Green（自動走行中）</span>
-  </div>
+<!-- dislay:flex : 子要素を横並び -->
+<!-- justify-content:子要素を左右に配置 -->
+<!-- align-items:上下の揃えを上端にする -->
+<div class="top-group" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+    <!-- 表示灯 -->
+    <div style="text-align:center; width:50%; margin-left: 2%"> <!-- 親要素 -->
+        <div class="area" style="height:75px; width:100%; margin: 1px auto; font-size:3vmin; font-size:3dvmin; position:relative; border:2px solid #232323; clear: both;" id="IO5">
+            <span class="text">IO5-Red（障害発生中）</span>
+        </div>
+        <div class="area" style="height:75px; width:100%; margin: 1px auto; font-size:3vmin; font-size:3dvmin; position:relative; border:2px solid #232323; clear: both;" id="IO4">
+            <span class="text">IO4-Yellow（待機中）</span>
+        </div>
+        <div class="area" style="height:75px; width:100%; margin: 1px auto; font-size:3vmin; font-size:3dvmin; position:relative; border:2px solid #232323; clear: both;" id="IO3">
+            <span class="text">IO3-Green（自動走行中）</span>
+        </div>
+    </div>
+    <div class="map-controls" style="text-align:center; width:50%; margin-left: 2%">
+        <!-- リスト再生のmap指定ボタン -->
+        <div style="text-align: center; width:100%">
+            <button class="map-button" onclick="addMap('IO76')">IO76</button>
+            <button class="map-button" onclick="addMap('B101')">B101</button>
+            <button class="map-button" onclick="addMap('B102')">B102</button>
+            <button class="map-button" onclick="addMap('B103')">B103</button>
+            <button class="map-button" onclick="addMap('B104')">B104</button>
+            <button class="map-button" onclick="addMap('B105')">B105</button>
+            <button class="map-button" onclick="addMap('B106')">B106</button>
+            <button class="map-button" onclick="addMap('B107')">B107</button>
+            <button class="map-button" onclick="addMap('B201')">B201</button>
+            <button class="map-button" onclick="addMap('B202')">B202</button>
+            <button class="map-button" onclick="addMap('B203')">B203</button>
+            <button class="map-button" onclick="addMap('B204')">B204</button>
+            <button class="map-button" onclick="addMap('B205')">B205</button>
+            <button class="map-button" onclick="addMap('B206')">B206</button>
+            <button class="map-button" onclick="addMap('B207')">B207</button>
+            <button class="map-button" onclick="clearMaps()">Clear</button>
+        </div>
+        <!-- 選択されたマップを表示 -->
+        <div style="text-align: center; width:100%; font-size:3dvmin; font-size:3dmin;">
+            <div style="font-weight: bold; margin-top: 1%;">Selected Map:</div>
+            <div id="selectedMaps"></div>
+        </div>
+    </div>
 </div>
 
-<!-- 進捗状況表示 -->
-<input id="map" type="text" style="height:12%;font-size:8vmin;font-size:8dvmin;width:calc(100% - 75px);box-sizing:border-box;float:left;" value="IO76">
-<select style="height:12%;font-size:6vmin;font-size:6dvmin;width:40px;box-sizing:border-box;float:left;" id="select" onchange="select();">
+<!-- 記憶するmap、進捗状況表示 -->
+<input id="map" type="text" style="text-align:center; height:12%; font-size:8vmin; font-size:8dvmin; width:calc(100% - 75px); box-sizing:border-box; float:left;" value="IO76">
+<select style="height:12%; font-size:6vmin; font-size:6dvmin; width:40px; box-sizing:border-box; float:left;" id="select" onchange="select();">
   <option value=""></option>
   <option value="IO76">IO76</option>
   <option value="B101">B101</option>
@@ -168,42 +200,18 @@
   <option value="B206">B206</option>
   <option value="B207">B207</option>
 </select>
-<div class="area" style="height:12%;font-size:8vmin;font-size:8dvmin;" id="pos_t"></div>
+<div class="area" style="height:12%; font-size:8vmin; font-size:8dvmin;" id="pos_t"></div>
 
 <!-- MT記憶ボタン -->
-<div class="area" style="height:15%;width:50%;font-size:5vmin;font-size:5dvmin;"><div class="button" onclick="memorize()" id="memorize"><span class="text" style="font-weight:bold;" id="memorize_t">Memorize</span></div></div>
-<div class="area" style="height:15%;width:50%;font-size:5vmin;font-size:5dvmin;"><div class="button" id="play" onclick="play()"><span class="text" style="font-weight:bold;" id="play_t">Play</span></div></div>
+<div class="area" style="height:15%;width:50%; font-size:5vmin; font-size:5dvmin;"><div class="button" onclick="memorize()" id="memorize"><span class="text" style="font-weight:bold;" id="memorize_t">Memorize</span></div></div>
+<div class="area" style="height:15%;width:50%; font-size:5vmin; font-size:5dvmin;"><div class="button" id="play" onclick="play()"><span class="text" style="font-weight:bold;" id="play_t">Play</span></div></div>
 
 <!-- 永続停止ボタン -->
-<div class="area" style="height:10%;width:50%;font-size:auto;"><div class="button" onclick="publishCmd('#pause#pauseset_0#run')"><span class="text">Begin Pause <br>#pauset_0</span></div></div>
-<div class="area" style="height:10%;width:50%;font-size:auto;"><div class="button" onclick="publishCmd('#run')"><span class="text">End Pause <br>#run</span></div></div>
+<div class="area" style="height:10%; width:50%; font-size:3vmin; font-size:3dvmin;"><div class="button" onclick="publishCmd('#pause#pauseset_0#run')"><span class="text">Begin Pause <br>#pauset_0</span></div></div>
+<div class="area" style="height:10%; width:50%; font-size:3vmin; font-size:3dvmin;"><div class="button" onclick="publishCmd('#run')"><span class="text">End Pause <br>#run</span></div></div>
 
 <!-- ログ出力ボタン -->
-<div class="area" style="height:9%;width:100%;font-size:auto;"><div class="button" onclick="publishCmd('#last_indicator')"><span class="text">#last_indicator（ログ出力）</span></div></div>
-<div class="area" style="overflow-y:scroll;font-size:3vmin;font-size:3dvmin;width:100%;height:47%;" id="details"><br>*** Details of Indicator topic ***</b></div>
+<div class="area" style="height:9%; width:100%; font-size:3vmin; font-size:3dvmin;"><div class="button" onclick="publishCmd('#last_indicator')"><span class="text">#last_indicator（ログ出力）</span></div></div>
+<div class="area" style="overflow-y:scroll; font-size:3vmin; font-size:3dvmin;width:100%; height:47%;" id="details"><br>*** Details of Indicator topic ***</b></div>
 
-<!-- リスト再生のmap指定ボタン -->
-<div style="text-align: center;">
-    <button onclick="addMap('IO76')">IO76</button>
-    <button onclick="addMap('B101')">B101</button>
-    <button onclick="addMap('B102')">B102</button>
-    <button onclick="addMap('B103')">B103</button>
-    <button onclick="addMap('B104')">B104</button>
-    <button onclick="addMap('B105')">B105</button>
-    <button onclick="addMap('B106')">B106</button>
-    <button onclick="addMap('B107')">B107</button>
-    <button onclick="addMap('B201')">B201</button>
-    <button onclick="addMap('B202')">B202</button>
-    <button onclick="addMap('B203')">B203</button>
-    <button onclick="addMap('B204')">B204</button>
-    <button onclick="addMap('B205')">B205</button>
-    <button onclick="addMap('B206')">B206</button>
-    <button onclick="addMap('B207')">B207</button>
-    <button onclick="clearMaps()">Clear</button>
-</div>
-<!-- 選択されたマップを表示 -->
-<div style="text-align: center; margin-top: 20px;">
-    <h3>Selected Map:</h3>
-    <div id="selectedMaps"></div>
-</div>
 </html>
