@@ -1,8 +1,0 @@
-.map-button {
-    font-size: 6vdmin; /* 動的なフォントサイズ */
-    font-size: 6vmin;  /* フォールバック用 */
-    padding: 10px;     /* ボタン内の余白 */
-    margin: 5px;       /* ボタン間の余白 */
-    width: auto;       /* ボタンの幅（必要に応じて指定可能） */
-    height: auto;      /* ボタンの高さ（必要に応じて指定可能） */
-}

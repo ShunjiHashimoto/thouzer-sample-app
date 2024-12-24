@@ -1,0 +1,26 @@
+.map-button {
+    font-size: 2.5vdmin; /* 動的なフォントサイズ */
+    font-size: 2.5vmin;  /* フォールバック用 */
+    padding: 10px;     /* ボタン内の余白 */
+    margin: 0.1vdmin;       /* ボタン間の余白 */
+    margin: 0.1vmin;       /* ボタン間の余白 */
+    width: auto;       /* ボタンの幅（必要に応じて指定可能） */
+    height: auto;      /* ボタンの高さ（必要に応じて指定可能） */
+}
+.custom-button {
+    background-color: #555; /* グレーの背景色 */
+    color: white;           /* 白色の文字 */
+    height: 100%;
+    width: 100%;
+    float: left;
+    cursor: pointer;
+    position: relative;
+    border: 2px solid #232323;
+    border-radius: 5vmin;
+    border-radius: 5dvmin;
+    box-sizing: border-box;
+}
+
+.button:hover {
+    background-color: #EDEDED; /* ホバー時に少し濃いグレーに */
+}
