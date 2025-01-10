@@ -70,7 +70,7 @@
             }
             // MTの進捗状況を表示
             if(topic == "0/THOUZER_HW/" + type_and_serial + "/event/app" && json.data != null && json.data.application != null && (json.data.application == "memorytrace" || json.data.application == "memorytraceTeach")){ 
-                if(json.data.map != null && json.data.pos != null) pos_t_update(json.data.map, Math.round(100*(json.data.pos/json.data.last)));
+                if(json.data.map != null && json.data.pos != null) pos_t_update(json.data.map, Math.round(100*(json.data.pos/json.data.last)), json.data.application, json.data.listNum);
             }
             // 表示灯のio出力を表示
             if(topic == "0/WHISPERER/" + type_and_serial + "/io12" && json.level != null){
@@ -101,17 +101,34 @@
         }
         // ボタンが押されたときに呼ばれる関数
         function play(){ 
-            const mapsString = selectedMaps.join("+");
-            publishCmdParam('app-memorytrace', '--map ' + mapsString);
+            if(selectedMaps.length == 0){
+                publishCmdParam('app-memorytrace', '--map ' + document.getElementById('map').value);
+                // publishCmdParam('app-memorytrace', '--map ' + document.getElementById('map').value + (document.getElementById('loop').checked?" --loop":""));
+            }
+            else{
+                const mapsString = selectedMaps.join("+");
+                publishCmdParam('app-memorytrace', '--map ' + mapsString);
+                // publishCmdParam('app-memorytrace', '--map ' + mapsString + (document.getElementById('loop').checked?" --loop":""));
+            }
         }
         // メモリトレースを停止する
         function stop(){ 
             publishCmd(''); 
         }
         // 走行中の進捗状況を更新する
-        function pos_t_update(m, p) {
+        function pos_t_update(m, p, status="memorytraceTeach", l=0) {
             // innerHTML: HTML要素に値を追加する
-            document.getElementById("pos_t").innerHTML = "<div style='height:100%;width:100%;float:left;position:relative;'><span class='text'>Map : " + m + " / Progress Rate : " + p + "%" + "</span></div>";
+            if (status == "memorytrace") {
+                if(selectedMaps.length == 0){
+                    document.getElementById("pos_t").innerHTML = "<div style='height:100%;width:100%;float:left;position:relative;'><span class='text'>Map : " + document.getElementById('map').value + " / Progress Rate : " + p + "%" + "</span></div>";
+                }
+                else{
+                    document.getElementById("pos_t").innerHTML = "<div style='height:100%;width:100%;float:left;position:relative;'><span class='text'>Map : " + selectedMaps[l] + " / Progress Rate : " + p + "%" + "</span></div>";
+                }
+            }
+            else {
+                document.getElementById("pos_t").innerHTML = "<div style='height:100%;width:100%;float:left;position:relative;'><span class='text'>Map : " + m + "</span></div>";
+            }    
         }
         // リスト再生
         function updateSelectedMaps() {
@@ -200,11 +217,13 @@
   <option value="B206">B206</option>
   <option value="B207">B207</option>
 </select>
-<div class="area" style="height:12%; font-size:8vmin; font-size:8dvmin;" id="pos_t"></div>
+<div class="area" style="height:12%; font-size:7vmin; font-size:7dvmin; width:100%;" id="pos_t"></div>
 
 <!-- MT記憶ボタン -->
 <div class="area" style="height:15%;width:50%; font-size:5vmin; font-size:5dvmin;"><div class="button" onclick="memorize()" id="memorize"><span class="text" style="font-weight:bold;" id="memorize_t">Memorize</span></div></div>
 <div class="area" style="height:15%;width:50%; font-size:5vmin; font-size:5dvmin;"><div class="button" id="play" onclick="play()"><span class="text" style="font-weight:bold;" id="play_t">Play</span></div></div>
+
+<!-- <div class="area" style="height:5%;width:100%;font-size:3vmin;font-size:3dvmin;"><input type="checkbox" id="loop"><label for="loop">loop</label></div> -->
 
 <!-- 永続停止ボタン -->
 <div class="area" style="height:10%; width:50%; font-size:3vmin; font-size:3dvmin;"><div class="button" onclick="publishCmd('#pause#pauseset_0#run')"><span class="text">Begin Pause <br>#pauset_0</span></div></div>
